@@ -22,6 +22,7 @@ public class DepositoClienteFrame extends javax.swing.JFrame {
         initComponents();
         this.banco = banco;
         this.usuario = usuario;
+        this.setTitle("Deposito");
 
         // Si el usuario es cliente, podríamos pre-llenar su cuenta automáticamente
         if (usuario instanceof UsuarioCliente) {

@@ -22,6 +22,7 @@ public class RetiroClienteFrame extends javax.swing.JFrame {
         initComponents();
         this.banco = banco;
         this.usuario = usuario;
+        this.setTitle("Retiro");
         setLocationRelativeTo(null);
         Cliente cliente = ((UsuarioCliente) usuario).getCliente();
         jComboBox1.removeAllItems();

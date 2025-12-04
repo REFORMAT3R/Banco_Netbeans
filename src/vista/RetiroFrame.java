@@ -22,6 +22,7 @@ public class RetiroFrame extends javax.swing.JFrame {
         initComponents();
         this.banco = banco;
         this.usuario = usuario;
+        this.setTitle("Retiro");
         setLocationRelativeTo(null);
     }
 

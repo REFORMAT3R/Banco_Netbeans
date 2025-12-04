@@ -1,10 +1,22 @@
 package vista;
 
 // Importa tus clases de lógica (ajusta el nombre del paquete si es necesario)
+import javax.swing.*;
 import modelo.*; 
 
 public class MainGUI {
     public static void main(String[] args) {
+        try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
+            }
+        }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        
         // 1. Inicializamos la lógica del negocio
         Banco banco = new Banco();
         GestorUsuarios gestorUsuarios = new GestorUsuarios();
