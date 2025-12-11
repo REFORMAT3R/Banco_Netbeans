@@ -65,79 +65,63 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         cmbCuentasOrigen = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtDestino = new javax.swing.JTextField();
+        jPanel1 = new javax.swing.JPanel();
         btnTransferir = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
         txtMonto = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setText("Cuenta de Origen");
-
+        cmbCuentasOrigen.setBackground(new java.awt.Color(204, 204, 204));
+        cmbCuentasOrigen.setFont(new java.awt.Font("Microsoft YaHei UI", 0, 12)); // NOI18N
+        cmbCuentasOrigen.setForeground(new java.awt.Color(0, 0, 0));
         cmbCuentasOrigen.addActionListener(this::cmbCuentasOrigenActionPerformed);
+        getContentPane().add(cmbCuentasOrigen, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 70, 176, -1));
 
-        jLabel2.setText("Tus cuentas");
+        jLabel3.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Cuenta de Destino:");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, 150, -1));
 
-        jLabel3.setText("Cuenta de Destino");
-
+        txtDestino.setBackground(new java.awt.Color(204, 204, 204));
+        txtDestino.setFont(new java.awt.Font("Microsoft YaHei UI", 0, 12)); // NOI18N
+        txtDestino.setForeground(new java.awt.Color(0, 0, 0));
         txtDestino.addActionListener(this::txtDestinoActionPerformed);
+        getContentPane().add(txtDestino, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 110, 176, -1));
 
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        btnTransferir.setBackground(new java.awt.Color(239, 184, 16));
+        btnTransferir.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnTransferir.setForeground(new java.awt.Color(0, 0, 0));
         btnTransferir.setText("Transferir");
+        btnTransferir.setBorderPainted(false);
         btnTransferir.addActionListener(this::btnTransferirActionPerformed);
+        jPanel1.add(btnTransferir, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 230, -1, -1));
 
-        jLabel4.setText("Monto");
+        txtMonto.setBackground(new java.awt.Color(204, 204, 204));
+        txtMonto.setFont(new java.awt.Font("Microsoft YaHei UI", 0, 12)); // NOI18N
+        txtMonto.setForeground(new java.awt.Color(0, 0, 0));
+        jPanel1.add(txtMonto, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 150, 176, -1));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(cmbCuentasOrigen, 0, 176, Short.MAX_VALUE)
-                    .addComponent(txtDestino)
-                    .addComponent(txtMonto))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(161, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(btnTransferir)
-                        .addGap(159, 159, 159))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(76, 76, 76))))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(cmbCuentasOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(txtDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addGap(30, 30, 30)
-                .addComponent(btnTransferir)
-                .addContainerGap(111, Short.MAX_VALUE))
-        );
+        jLabel4.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Monto:");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 107, -1));
+
+        jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Cuenta de Origen:");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 140, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 320));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -232,9 +216,9 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnTransferir;
     private javax.swing.JComboBox<String> cmbCuentasOrigen;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField txtDestino;
     private javax.swing.JTextField txtMonto;
     // End of variables declaration//GEN-END:variables

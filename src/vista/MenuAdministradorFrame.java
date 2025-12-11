@@ -26,7 +26,7 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
         this.usuarioActual = usuario;
         this.setTitle("Menu del Administrador");
         
-        lblUsuario.setText("Hola, " + usuario.getNombreUsuario());
+        lblUsuario.setText(usuario.getNombreUsuario().toUpperCase());
         aplicarPermisos(); // Método para ocultar botones según quién eres
     }
 
@@ -48,126 +48,190 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jPanelMenuAdmin = new javax.swing.JPanel();
+        logo = new javax.swing.JLabel();
+        lblNombreBanco1 = new javax.swing.JLabel();
+        lblNombreBanco2 = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
-        btnRegCliente = new javax.swing.JButton();
-        btnRegCuenta = new javax.swing.JButton();
-        btnDeposito = new javax.swing.JButton();
-        btnRetiro = new javax.swing.JButton();
-        btnSaldo = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
-        btnMovimientos = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         btnMovimientos1 = new javax.swing.JButton();
         btnMovimientos2 = new javax.swing.JButton();
+        btnMovimientos = new javax.swing.JButton();
+        btnSaldo = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        btnRetiro = new javax.swing.JButton();
+        btnDeposito = new javax.swing.JButton();
+        btnRegCuenta = new javax.swing.JButton();
+        btnRegCliente = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        lblTxtTransacciones = new javax.swing.JLabel();
+        lblTxtRegistro = new javax.swing.JLabel();
+        lblTxtRegistro1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(800, 800));
+        setResizable(false);
+        setSize(new java.awt.Dimension(720, 720));
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setText("Bienvenido al Sistema Bancario");
+        jPanelMenuAdmin.setBackground(new java.awt.Color(239, 184, 16));
+        jPanelMenuAdmin.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        logo.setForeground(new java.awt.Color(0, 0, 0));
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/logoBanco.png"))); // NOI18N
+        jPanelMenuAdmin.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
+
+        lblNombreBanco1.setFont(new java.awt.Font("OCR A Extended", 1, 22)); // NOI18N
+        lblNombreBanco1.setForeground(new java.awt.Color(51, 51, 51));
+        lblNombreBanco1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNombreBanco1.setText("USUARIO:");
+        jPanelMenuAdmin.add(lblNombreBanco1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 250, 30));
+
+        lblNombreBanco2.setFont(new java.awt.Font("OCR A Extended", 1, 20)); // NOI18N
+        lblNombreBanco2.setForeground(new java.awt.Color(51, 51, 51));
+        lblNombreBanco2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNombreBanco2.setText("BIENVENIDO A iBank");
+        jPanelMenuAdmin.add(lblNombreBanco2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 130, 250, 53));
+
+        lblUsuario.setFont(new java.awt.Font("OCR A Extended", 0, 22)); // NOI18N
+        lblUsuario.setForeground(new java.awt.Color(51, 51, 51));
+        lblUsuario.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblUsuario.setText("mostrar el nombre del usuario");
+        lblUsuario.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jPanelMenuAdmin.add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 260, 250, -1));
 
-        btnRegCliente.setText("Registrar Cliente");
-        btnRegCliente.addActionListener(this::btnRegClienteActionPerformed);
-
-        btnRegCuenta.setText("Registrar Cuenta");
-        btnRegCuenta.addActionListener(this::btnRegCuentaActionPerformed);
-
-        btnDeposito.setText("Depósito");
-        btnDeposito.addActionListener(this::btnDepositoActionPerformed);
-
-        btnRetiro.setText("Retiro");
-        btnRetiro.addActionListener(this::btnRetiroActionPerformed);
-
-        btnSaldo.setText("Ver Saldo");
-        btnSaldo.addActionListener(this::btnSaldoActionPerformed);
-
+        btnSalir.setBackground(new java.awt.Color(204, 204, 204));
+        btnSalir.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnSalir.setForeground(new java.awt.Color(0, 0, 0));
         btnSalir.setText("Cerrar Sesión");
+        btnSalir.setBorderPainted(false);
+        btnSalir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnSalir.addActionListener(this::btnSalirActionPerformed);
+        jPanelMenuAdmin.add(btnSalir, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, -1, 30));
 
-        btnMovimientos.setText("Lista de clientes");
-        btnMovimientos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        btnMovimientos.setFocusPainted(false);
-        btnMovimientos.addActionListener(this::btnListaClientesActionPerformed);
+        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        btnMovimientos1.setBackground(new java.awt.Color(204, 204, 204));
+        btnMovimientos1.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnMovimientos1.setForeground(new java.awt.Color(0, 0, 0));
         btnMovimientos1.setText("Ver Movimientos");
+        btnMovimientos1.setBorderPainted(false);
         btnMovimientos1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnMovimientos1.setFocusPainted(false);
         btnMovimientos1.addActionListener(this::btnMovimientosActionPerformed);
+        jPanel2.add(btnMovimientos1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 340, 140, -1));
 
+        btnMovimientos2.setBackground(new java.awt.Color(204, 204, 204));
+        btnMovimientos2.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnMovimientos2.setForeground(new java.awt.Color(0, 0, 0));
         btnMovimientos2.setText("Lista de empleados");
+        btnMovimientos2.setBorderPainted(false);
         btnMovimientos2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnMovimientos2.setFocusPainted(false);
         btnMovimientos2.addActionListener(this::btnListaEmpleadosActionPerformed);
+        jPanel2.add(btnMovimientos2, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 370, 160, -1));
 
+        btnMovimientos.setBackground(new java.awt.Color(204, 204, 204));
+        btnMovimientos.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnMovimientos.setForeground(new java.awt.Color(0, 0, 0));
+        btnMovimientos.setText("Lista de clientes");
+        btnMovimientos.setBorderPainted(false);
+        btnMovimientos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        btnMovimientos.setFocusPainted(false);
+        btnMovimientos.addActionListener(this::btnListaClientesActionPerformed);
+        jPanel2.add(btnMovimientos, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 310, 160, -1));
+
+        btnSaldo.setBackground(new java.awt.Color(204, 204, 204));
+        btnSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnSaldo.setForeground(new java.awt.Color(0, 0, 0));
+        btnSaldo.setText("Ver Saldo");
+        btnSaldo.setBorderPainted(false);
+        btnSaldo.addActionListener(this::btnSaldoActionPerformed);
+        jPanel2.add(btnSaldo, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 250, 140, -1));
+
+        jButton1.setBackground(new java.awt.Color(204, 204, 204));
+        jButton1.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.setText("Transferencia");
+        jButton1.setBorderPainted(false);
         jButton1.addActionListener(this::jButton1ActionPerformed);
+        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 200, 140, -1));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(50, 50, 50)
-                .addComponent(btnMovimientos, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnMovimientos2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 25, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel1)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(104, 104, 104))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(btnSaldo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnRegCuenta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnRegCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnMovimientos1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(btnSalir)
-                                        .addGap(17, 17, 17))
-                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(126, 126, 126))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(btnDeposito, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnRetiro, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40))))
+        btnRetiro.setBackground(new java.awt.Color(204, 204, 204));
+        btnRetiro.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnRetiro.setForeground(new java.awt.Color(0, 0, 0));
+        btnRetiro.setText("Retiro");
+        btnRetiro.setBorderPainted(false);
+        btnRetiro.addActionListener(this::btnRetiroActionPerformed);
+        jPanel2.add(btnRetiro, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 170, 140, -1));
+
+        btnDeposito.setBackground(new java.awt.Color(204, 204, 204));
+        btnDeposito.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnDeposito.setForeground(new java.awt.Color(0, 0, 0));
+        btnDeposito.setText("Depósito");
+        btnDeposito.setBorderPainted(false);
+        btnDeposito.addActionListener(this::btnDepositoActionPerformed);
+        jPanel2.add(btnDeposito, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 140, 140, -1));
+
+        btnRegCuenta.setBackground(new java.awt.Color(204, 204, 204));
+        btnRegCuenta.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnRegCuenta.setForeground(new java.awt.Color(0, 0, 0));
+        btnRegCuenta.setText("Registrar Cuenta");
+        btnRegCuenta.setBorderPainted(false);
+        btnRegCuenta.addActionListener(this::btnRegCuentaActionPerformed);
+        jPanel2.add(btnRegCuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 60, 160, -1));
+
+        btnRegCliente.setBackground(new java.awt.Color(204, 204, 204));
+        btnRegCliente.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        btnRegCliente.setForeground(new java.awt.Color(0, 0, 0));
+        btnRegCliente.setText("Registrar Cliente");
+        btnRegCliente.setBorderPainted(false);
+        btnRegCliente.addActionListener(this::btnRegClienteActionPerformed);
+        jPanel2.add(btnRegCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 30, 160, -1));
+
+        jSeparator1.setBackground(new java.awt.Color(239, 184, 16));
+        jSeparator1.setForeground(new java.awt.Color(239, 184, 16));
+        jPanel2.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 119, 380, 10));
+
+        jSeparator2.setBackground(new java.awt.Color(239, 184, 16));
+        jSeparator2.setForeground(new java.awt.Color(239, 184, 16));
+        jPanel2.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 284, 380, -1));
+
+        lblTxtTransacciones.setFont(new java.awt.Font("OCR A Extended", 1, 20)); // NOI18N
+        lblTxtTransacciones.setForeground(new java.awt.Color(255, 255, 255));
+        lblTxtTransacciones.setText("TRANSACCIONES");
+        jPanel2.add(lblTxtTransacciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, -1, -1));
+
+        lblTxtRegistro.setFont(new java.awt.Font("OCR A Extended", 1, 20)); // NOI18N
+        lblTxtRegistro.setForeground(new java.awt.Color(255, 255, 255));
+        lblTxtRegistro.setText("LISTAS");
+        jPanel2.add(lblTxtRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(56, 336, 101, -1));
+
+        lblTxtRegistro1.setFont(new java.awt.Font("OCR A Extended", 1, 20)); // NOI18N
+        lblTxtRegistro1.setForeground(new java.awt.Color(255, 255, 255));
+        lblTxtRegistro1.setText("REGISTRO");
+        jPanel2.add(lblTxtRegistro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(53, 51, -1, -1));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jPanelMenuAdmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblUsuario)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnRegCliente)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRegCuenta)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnRetiro)
-                    .addComponent(btnDeposito))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSaldo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnMovimientos)
-                    .addComponent(btnMovimientos2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnMovimientos1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSalir)
-                .addGap(14, 14, 14))
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanelMenuAdmin, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -248,7 +312,17 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnSaldo;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanelMenuAdmin;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblNombreBanco1;
+    private javax.swing.JLabel lblNombreBanco2;
+    private javax.swing.JLabel lblTxtRegistro;
+    private javax.swing.JLabel lblTxtRegistro1;
+    private javax.swing.JLabel lblTxtTransacciones;
     private javax.swing.JLabel lblUsuario;
+    private javax.swing.JLabel logo;
     // End of variables declaration//GEN-END:variables
 }

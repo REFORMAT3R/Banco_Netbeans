@@ -25,13 +25,13 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
         this.setTitle("Consulta de Saldo");
 
         // Inicializar el label de saldo
-        jLabel2.setText("---");
+        lblNumSaldo.setText("---");
 
         // Llenar JComboBox con las cuentas del cliente
-        jComboBox1.removeAllItems();
+        comboBoxCuentas.removeAllItems();
         for (Titular t : banco.getListaTitular()) {
             if (t.getCliente().equals(((UsuarioCliente) usuario).getCliente())) {
-                jComboBox1.addItem(t.getCuenta().getCodigoCuenta());
+                comboBoxCuentas.addItem(t.getCuenta().getCodigoCuenta());
             }
         }
         // Inicializar el label de saldo vacío o con guiones
@@ -46,67 +46,90 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
-        lblSaldo = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnConsultar = new javax.swing.JButton();
+        lblTxtSaldo = new javax.swing.JLabel();
+        comboBoxCuentas = new javax.swing.JComboBox<>();
+        lblTxtCuentas = new javax.swing.JLabel();
+        lblNumSaldo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton1.setText("Consultar");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox1.addActionListener(this::jComboBox1ActionPerformed);
+        btnConsultar.setBackground(new java.awt.Color(239, 184, 16));
+        btnConsultar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnConsultar.setForeground(new java.awt.Color(0, 0, 0));
+        btnConsultar.setText("Consultar");
+        btnConsultar.setBorderPainted(false);
+        btnConsultar.addActionListener(this::btnConsultarActionPerformed);
 
-        jLabel3.setText("Tus Cuentas:");
+        lblTxtSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        lblTxtSaldo.setForeground(new java.awt.Color(255, 255, 255));
+        lblTxtSaldo.setText("Saldo:");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(148, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(158, 158, 158))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(143, 143, 143))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(57, 57, 57)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(109, 109, 109)
-                        .addComponent(jLabel2)))
+        comboBoxCuentas.setBackground(new java.awt.Color(204, 204, 204));
+        comboBoxCuentas.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
+        comboBoxCuentas.setForeground(new java.awt.Color(0, 0, 0));
+        comboBoxCuentas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboBoxCuentas.addActionListener(this::comboBoxCuentasActionPerformed);
+
+        lblTxtCuentas.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        lblTxtCuentas.setForeground(new java.awt.Color(255, 255, 255));
+        lblTxtCuentas.setText("Tus Cuentas:");
+
+        lblNumSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        lblNumSaldo.setForeground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(84, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(lblTxtSaldo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblNumSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(40, 40, 40))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnConsultar)
+                        .addGap(97, 97, 97))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(comboBoxCuentas, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(85, 85, 85))))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(48, 48, 48)
+                .addComponent(lblTxtCuentas)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addGap(26, 26, 26)
-                .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(157, Short.MAX_VALUE))
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(115, Short.MAX_VALUE)
+                .addComponent(lblTxtCuentas)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(comboBoxCuentas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46)
+                .addComponent(btnConsultar)
+                .addGap(46, 46, 46)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblTxtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblNumSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(110, 110, 110))
         );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, 420));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
         // TODO add your handling code here:
-        String codCuenta = (String) jComboBox1.getSelectedItem();
+        String codCuenta = (String) comboBoxCuentas.getSelectedItem();
         if (codCuenta == null) {
             JOptionPane.showMessageDialog(this, "No hay cuentas disponibles.");
             return;
@@ -122,16 +145,16 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
         }
 
         if (cuenta != null) {
-            jLabel2.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
+            lblNumSaldo.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
         } else {
             JOptionPane.showMessageDialog(this, "Cuenta no encontrada.");
-            jLabel2.setText("---");
+            lblNumSaldo.setText("---");
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnConsultarActionPerformed
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+    private void comboBoxCuentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxCuentasActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }//GEN-LAST:event_comboBoxCuentasActionPerformed
 
     /**
      * @param args the command line arguments
@@ -139,10 +162,11 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel lblSaldo;
+    private javax.swing.JButton btnConsultar;
+    private javax.swing.JComboBox<String> comboBoxCuentas;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblNumSaldo;
+    private javax.swing.JLabel lblTxtCuentas;
+    private javax.swing.JLabel lblTxtSaldo;
     // End of variables declaration//GEN-END:variables
 }
