@@ -5,6 +5,7 @@
 package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author Admin
@@ -107,7 +108,7 @@ public class ConsultaSaldoFrame extends javax.swing.JFrame {
 
         if (cuenta != null) {
             // Mostrar el saldo actualizado desde la BD
-            double saldo = cuenta.getSaldo();
+            double saldo = CuentaDAO.obtenerSaldo(codCuenta);
             lblSaldo.setText("S/. " + String.format("%.2f", saldo));
             
             // Log de consulta exitosa

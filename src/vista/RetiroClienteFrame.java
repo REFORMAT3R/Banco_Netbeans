@@ -5,6 +5,7 @@
 package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author Admin
@@ -25,11 +26,19 @@ public class RetiroClienteFrame extends javax.swing.JFrame {
         this.usuario = usuario;
         this.setTitle("Retiro");
         setLocationRelativeTo(null);
-        Cliente cliente = ((UsuarioCliente) usuario).getCliente();
-        jComboBox1.removeAllItems();
-        for (Titular t : banco.getListaTitular()) {
-            if (t.getCliente().getCodigoCliente().equals(cliente.getCodigoCliente())) {
-                jComboBox1.addItem(t.getCuenta().getCodigoCuenta());
+        if (usuario instanceof UsuarioCliente) {
+            Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+            jComboBox1.removeAllItems();
+            
+            // Obtener cuentas del cliente desde la BD
+            java.util.List<Cuenta> cuentasCliente = banco.buscarCuentasDeCliente(cliente.getCodigoCliente());
+            
+            if (cuentasCliente.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No tienes cuentas registradas.");
+            } else {
+                for (Cuenta cuenta : cuentasCliente) {
+                    jComboBox1.addItem(cuenta.getCodigoCuenta());
+                }
             }
         }
     }
@@ -116,18 +125,16 @@ public class RetiroClienteFrame extends javax.swing.JFrame {
               }
 
               // 3. Obtener código del cliente
-              Cliente cliente = ((UsuarioCliente) usuario).getCliente();
-              String codCliente = cliente.getCodigoCliente();
+              String codCliente = CuentaDAO.obtenerCodigoClientePorCuenta(codCuenta);
 
               // 4. Realizar el retiro usando BANCO (usa SQL internamente)
-              String idTransaccion = "TXN" + System.currentTimeMillis();
 
               boolean exito = banco.retirar(
                       codCliente,
                       codCuenta,
                       monto,
                       null,           // Cliente no tiene empleado asociado
-                      idTransaccion
+                      null
               );
 
               if (!exito) {
@@ -140,12 +147,10 @@ public class RetiroClienteFrame extends javax.swing.JFrame {
               }
 
               // 5. Obtener saldo actualizado desde SQL
-              Cuenta cuentaActualizada = banco.buscarCuenta(codCuenta);
 
               JOptionPane.showMessageDialog(this,
-                      "Retiro realizado con éxito.\n" +
-                      "Nuevo saldo: S/. " + String.format("%.2f", cuentaActualizada.getSaldo()),
-                      "Éxito",
+                      "Retiro realizado con éxito.\n",
+                      "Muchas Gracias",
                       JOptionPane.INFORMATION_MESSAGE);
 
               txtMonto.setText("");

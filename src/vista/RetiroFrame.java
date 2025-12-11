@@ -140,7 +140,7 @@ public class RetiroFrame extends javax.swing.JFrame {
             double monto = Double.parseDouble(montoTxt);
 
             // 1. Validar que la cuenta exista (usando la lógica del banco, igual que en depósito)
-            Cuenta cta = banco.buscarCuenta(codigoCuenta);
+            Cuenta cta = CuentaDAO.obtenerCuenta(codigoCuenta);
             if (cta == null) {
                 JOptionPane.showMessageDialog(this, "La cuenta no existe.");
                 return;
@@ -163,7 +163,7 @@ public class RetiroFrame extends javax.swing.JFrame {
                     codigoCliente,  // dueño obtenido desde SQL
                     codigoCuenta,
                     monto,
-                    emp,
+                    null,
                     "IGNORAR"       // NO USAMOS ESTE ID, la BD genera el idTransaccion
             );
 
@@ -175,12 +175,12 @@ public class RetiroFrame extends javax.swing.JFrame {
             }
 
             // 5. Obtener saldo actualizado
-            Cuenta nueva = banco.buscarCuenta(codigoCuenta);
+
 
             JOptionPane.showMessageDialog(this,
                     "Retiro realizado con éxito.\n" +
                     "Monto: S/. " + String.format("%.2f", monto) + "\n" +
-                    "Nuevo saldo: S/. " + String.format("%.2f", nueva.getSaldo()),
+                    "Nuevo saldo: S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codigoCuenta)),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
             txtMonto.setText("");

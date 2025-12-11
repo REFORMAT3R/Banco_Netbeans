@@ -133,31 +133,6 @@ public class Banco {
         return CuentaDAO.obtenerCuenta(codigoCuenta);
     }
 
-    public Titular existeTitular(String codigoCliente, String codigoCuenta) {
-        if (!Validaciones.validarTexto(codigoCliente) || !Validaciones.validarTexto(codigoCuenta)) {
-            return null;
-        }
-
-        // 1. Buscar el cliente
-        Cliente cliente = buscarCliente(codigoCliente);
-        if (cliente == null) return null;
-
-        // 2. Buscar la cuenta
-        Cuenta cuenta = buscarCuenta(codigoCuenta);
-        if (cuenta == null) return null;
-
-        // 3. Verificar en la lista interna de titulares del banco
-        for (Titular t : titulares) { // tu lista RAM
-            if (t.getCliente().getCodigoCliente().equals(codigoCliente) &&
-                t.getCuenta().getCodigoCuenta().equals(codigoCuenta)) {
-                return t; // Ya existe el titular
-            }
-        }
-
-        return null; // No existe
-    }
-
-
     /* === CREACIÓN DE CUENTA === */
 
     public void crearCuenta(String codigoCuenta, Cliente cliente) {
@@ -181,68 +156,94 @@ public class Banco {
 
     /* === TRANSACCIONES === */
 
-    public boolean depositar(String codigoCliente, String codigoCuenta, double monto, Empleado empleado
-            , String ID) {
+    public boolean depositar(String codigoCliente, String codigoCuenta, double monto, 
+                         Empleado empleado, String ID) {
 
-        if (!validarDatosTransaccion(codigoCliente, codigoCuenta, ID)) {
-            return false;
-        }
+        try {
+            // 1. Obtener dueño real desde SQL
+            String dueñoReal = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
 
-        Titular titular = existeTitular(codigoCliente, codigoCuenta);
+            if (dueñoReal == null || !dueñoReal.equals(codigoCliente)) {
+                System.out.println("La cuenta NO pertenece al cliente");
+                return false;
+            }
 
-        if (titular != null) {
-            Cuenta cuenta = titular.getCuenta();
+            // 2. Obtener cuenta desde SQL
+            Cuenta cuenta = CuentaDAO.obtenerCuenta(codigoCuenta);
 
-            // Actualizar saldo
-            cuenta.setSaldo(cuenta.getSaldo() + monto);
-            CuentaDAO.actualizarSaldo(codigoCuenta, cuenta.getSaldo());
+            if (cuenta == null) {
+                System.out.println("Cuenta no encontrada");
+                return false;
+            }
 
-            // Registrar en SQL (el ID lo genera la BD)
+            // 3. Actualizar saldo en memoria
+            double nuevoSaldo = CuentaDAO.obtenerSaldo(codigoCuenta) + monto;
+
+            // 4. Actualizar saldo en SQL
+            CuentaDAO.actualizarSaldo(codigoCuenta, nuevoSaldo);
+
+            // 5. Registrar transacción en SQL
             String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
             TransaccionDAO.insertarTransaccion(codigoCuenta, null, codigoEmp, monto, "deposito");
 
             return true;
+
+        } catch (Exception e) {
+            System.out.println("Error en depósito: " + e.getMessage());
+            return false;
         }
-        return false;
     }
+
+
+
 
 
     public boolean retirar(String codigoCliente, String codigoCuenta, double monto,
-                           Empleado empleado, String ID) {
+                       Empleado empleado, String ID) {
 
-        // 1. Validar datos básicos
-        if (!validarDatosTransaccion(codigoCliente, codigoCuenta, ID)) {
+        try {
+            // 1. Verificar en SQL que la cuenta pertenece al cliente
+            String dueño = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
+            if (dueño == null || !dueño.equals(codigoCliente)) {
+                System.out.println("La cuenta NO pertenece al cliente.");
+                return false;
+            }
+
+            // 2. Obtener la cuenta desde SQL
+            Cuenta cuenta = CuentaDAO.obtenerCuenta(codigoCuenta);
+            if (cuenta == null) {
+                System.out.println("No existe la cuenta en SQL.");
+                return false;
+            }
+
+            // 3. Verificar saldo suficiente
+            double saldoActual = CuentaDAO.obtenerSaldo(codigoCuenta);
+            if (saldoActual < monto) {
+                System.out.println("Saldo insuficiente.");
+                return false;
+            }
+
+            // 4. Restar el monto al saldo y actualizar en SQL
+            double nuevoSaldo = saldoActual - monto;
+            boolean actualizado = CuentaDAO.actualizarSaldo(codigoCuenta, nuevoSaldo);
+            if (!actualizado) {
+                System.out.println("Error al actualizar el saldo en SQL.");
+                return false;
+            }
+
+            // 5. Registrar transacción en SQL
+            String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
+            TransaccionDAO.insertarTransaccion(codigoCuenta, null, codigoEmp, monto, "retiro");
+
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Error en retiro: " + e.getMessage());
             return false;
         }
-
-        // 2. Verificar que el cliente sea dueño de la cuenta
-        Titular titular = existeTitular(codigoCliente, codigoCuenta);
-        if (titular == null) {
-            imprimirEstadoValidacion(false, null);
-            return false;
-        }
-
-        Cuenta cuenta = titular.getCuenta();
-
-        // 3. Verificar saldo suficiente
-        if (cuenta.getSaldo() < monto) {
-            System.out.println("Saldo insuficiente");
-            return false;
-        }
-
-        // 4. Aplicar retiro en memoria
-        cuenta.setSaldo(cuenta.getSaldo() - monto);
-
-        // 5. Actualizar saldo en SQL
-        CuentaDAO.actualizarSaldo(codigoCuenta, cuenta.getSaldo());
-
-        // 6. Registrar transacción en SQL
-        String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
-        TransaccionDAO.insertarTransaccion(codigoCuenta, null, codigoEmp, monto, "retiro");
-
-        imprimirEstadoValidacion(true, null);
-        return true;
     }
+
+
 
     public Transferencia transferir(String codigoClienteOrigen, String codigoCuentaOrigen, 
                                 String codigoCuentaDestino, double monto, Empleado empleado, String ID) {

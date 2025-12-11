@@ -142,9 +142,6 @@ public class Validaciones {
     }
     
     // Valida datos de una transacción
-    public static boolean validarDatosTransaccion(String fecha, String hora, String id) {
-        return validarIdTransaccion(id);
-    }
     
     // ==================== MENSAJES DE ERROR ====================
     

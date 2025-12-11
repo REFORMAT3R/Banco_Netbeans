@@ -30,11 +30,19 @@ public class MovimientosClienteFrame extends javax.swing.JFrame {
         DefaultTableModel modelo = (DefaultTableModel) tblMovimientos.getModel();
         modelo.setColumnIdentifiers(new String[] {"Fecha", "Hora", "Tipo", "Monto"});
         
-        Cliente cliente = ((UsuarioCliente) usuario).getCliente();
-        jComboBox1.removeAllItems();
-        for (Titular t : banco.getListaTitular()) {
-            if (t.getCliente().getCodigoCliente().equals(cliente.getCodigoCliente())) {
-                jComboBox1.addItem(t.getCuenta().getCodigoCuenta());
+        if (usuario instanceof UsuarioCliente) {
+            Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+            jComboBox1.removeAllItems();
+            
+            // Obtener cuentas del cliente desde la BD
+            java.util.List<Cuenta> cuentasCliente = banco.buscarCuentasDeCliente(cliente.getCodigoCliente());
+            
+            if (cuentasCliente.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No tienes cuentas registradas.");
+            } else {
+                for (Cuenta cuenta : cuentasCliente) {
+                    jComboBox1.addItem(cuenta.getCodigoCuenta());
+                }
             }
         }
     }

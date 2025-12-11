@@ -5,6 +5,7 @@
 package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author Admin
@@ -144,12 +145,11 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
             return;
         }
 
-        // Buscar la cuenta directamente en la BD
-        Cuenta cuenta = banco.buscarCuenta(codCuenta);
+        // Buscar la cuenta directamente en SQL
+        Cuenta cuenta = CuentaDAO.obtenerCuenta(codCuenta);
 
         if (cuenta != null) {
-            // Mostrar el saldo con formato
-            lblNumSaldo.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
+            lblNumSaldo.setText("S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codCuenta)));
         } else {
             JOptionPane.showMessageDialog(this, "Cuenta no encontrada en la base de datos.");
             lblNumSaldo.setText("---");
@@ -157,16 +157,7 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnConsultarActionPerformed
 
     private void comboBoxCuentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxCuentasActionPerformed
-        // TODO add your handling code here:
-         String codCuenta = (String) comboBoxCuentas.getSelectedItem();
-        if (codCuenta != null && !codCuenta.trim().isEmpty()) {
-            Cuenta cuenta = banco.buscarCuenta(codCuenta);
-            if (cuenta != null) {
-                lblNumSaldo.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
-            } else {
-                lblNumSaldo.setText("---");
-            }
-        }
+
     }//GEN-LAST:event_comboBoxCuentasActionPerformed
 
     /**

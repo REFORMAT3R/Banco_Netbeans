@@ -159,14 +159,14 @@ public class DepositoFrame extends javax.swing.JFrame {
             }
 
             // 3. Obtener al empleado que hace el depósito
-            Empleado emp = ((UsuarioEmpleado) usuario).getEmpleado();
+
 
             // 4. Realizar depósito (SQL incluido)
             boolean ok = banco.depositar(
                     codigoCliente,  // ← se obtuvo automáticamente
                     codigoCuenta,
                     monto,
-                    emp,
+                    null,
                     "IGNORAR"       // el ID lo genera la BD
             );
 
@@ -176,12 +176,11 @@ public class DepositoFrame extends javax.swing.JFrame {
             }
 
             // 5. Obtener saldo actualizado
-            Cuenta nueva = banco.buscarCuenta(codigoCuenta);
 
             JOptionPane.showMessageDialog(this,
                     "Depósito realizado con éxito.\n" +
                     "Monto: S/. " + String.format("%.2f", monto) + "\n" +
-                    "Nuevo saldo: S/. " + String.format("%.2f", nueva.getSaldo()),
+                    "Nuevo saldo: S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codigoCuenta)),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
             txtMonto.setText("");

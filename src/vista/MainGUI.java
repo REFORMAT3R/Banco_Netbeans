@@ -1,4 +1,4 @@
-package vista;
+    package vista;
 
 // Importa tus clases de lógica (ajusta el nombre del paquete si es necesario)
 import javax.swing.*;

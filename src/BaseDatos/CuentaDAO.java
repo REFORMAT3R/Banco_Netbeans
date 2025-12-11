@@ -9,12 +9,13 @@ public class CuentaDAO {
 
     // 1️⃣ Crear / INSERT
     public static boolean insertarCuenta(String codigoCuenta, String codigoCliente) {
-        String sql = "INSERT INTO cuenta(codigoCuenta, saldo, codigoCliente) VALUES (?, 0, ?)";
+        String sql = "INSERT INTO cuenta(codigoCuenta, saldo, codigoCliente) VALUES (?, ?, ?)";
         try (Connection conn = Conexion.conectar();
             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, codigoCuenta);
-            ps.setString(2, codigoCliente);
+            ps.setDouble(2, 0.0);
+            ps.setString(3, codigoCliente);
 
             ps.executeUpdate();
             return true;
@@ -107,6 +108,28 @@ public class CuentaDAO {
         return null;
     }
 
+    public static Double obtenerSaldo(String codigoCuenta) {
+        String sql = "SELECT saldo FROM cuenta WHERE codigoCuenta = ?";
+
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, codigoCuenta);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("saldo"); // devuelve el saldo
+            } else {
+                return null; // cuenta no encontrada
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al obtener saldo: " + e.getMessage());
+            return null;
+        }
+    }
+
+        
     // 3️⃣ Actualizar saldo
     public static boolean actualizarSaldo(String codigoCuenta, double nuevoSaldo) {
         String sql = "UPDATE cuenta SET saldo = ? WHERE codigoCuenta = ?";
