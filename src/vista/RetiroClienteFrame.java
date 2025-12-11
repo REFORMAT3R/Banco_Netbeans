@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package vista;
-import modelo.*; 
+import modelo.*;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Admin
@@ -97,43 +98,67 @@ public class RetiroClienteFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_txtMontoActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
         try {
-            double monto = Double.parseDouble(txtMonto.getText());
-            String codCuenta = (String) jComboBox1.getSelectedItem();
-            Cliente cliente = ((UsuarioCliente) usuario).getCliente();
-            String codCliente = cliente.getCodigoCliente();
+              // 1. Leer monto
+              String montoTexto = txtMonto.getText().trim();
+              if (montoTexto.isEmpty()) {
+                  JOptionPane.showMessageDialog(this, "Ingrese un monto.");
+                  return;
+              }
 
-            // Buscamos la cuenta seleccionada
-            Cuenta cuenta = null;
-            for (Titular t : banco.getListaTitular()) {
-                if (t.getCliente().getCodigoCliente().equals(codCliente)
-                        && t.getCuenta().getCodigoCuenta().equals(codCuenta)) {
-                    cuenta = t.getCuenta();
-                    break;
-                }
-            }
-            if (cuenta == null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Cuenta no encontrada.");
-                return;
-            }
-            // Verificamos que haya saldo suficiente
-            if (monto > cuenta.getSaldo()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Fondos insuficientes para realizar el retiro.");
-                return;
-            }
-            // Si hay saldo, realizamos el retiro
-            Transaccion t = banco.retirar(codCliente, codCuenta, monto, null, "TXN" + System.currentTimeMillis());
+              double monto = Double.parseDouble(montoTexto);
 
-            if (t != null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Retiro realizado con éxito.");
-            } else {
-                javax.swing.JOptionPane.showMessageDialog(this, "Error al realizar el retiro.");
-            }
+              // 2. Obtener cuenta seleccionada
+              String codCuenta = (String) jComboBox1.getSelectedItem();
+              if (codCuenta == null || codCuenta.trim().isEmpty()) {
+                  JOptionPane.showMessageDialog(this, "Seleccione una cuenta.");
+                  return;
+              }
 
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un monto válido.");
-        }
+              // 3. Obtener código del cliente
+              Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+              String codCliente = cliente.getCodigoCliente();
+
+              // 4. Realizar el retiro usando BANCO (usa SQL internamente)
+              String idTransaccion = "TXN" + System.currentTimeMillis();
+
+              boolean exito = banco.retirar(
+                      codCliente,
+                      codCuenta,
+                      monto,
+                      null,           // Cliente no tiene empleado asociado
+                      idTransaccion
+              );
+
+              if (!exito) {
+                  JOptionPane.showMessageDialog(this,
+                      "No se pudo realizar el retiro.\n" +
+                      "Verifique los datos o saldo insuficiente.",
+                      "Error",
+                      JOptionPane.ERROR_MESSAGE);
+                  return;
+              }
+
+              // 5. Obtener saldo actualizado desde SQL
+              Cuenta cuentaActualizada = banco.buscarCuenta(codCuenta);
+
+              JOptionPane.showMessageDialog(this,
+                      "Retiro realizado con éxito.\n" +
+                      "Nuevo saldo: S/. " + String.format("%.2f", cuentaActualizada.getSaldo()),
+                      "Éxito",
+                      JOptionPane.INFORMATION_MESSAGE);
+
+              txtMonto.setText("");
+
+          } catch (NumberFormatException e) {
+              JOptionPane.showMessageDialog(this,
+                      "Ingrese un monto válido.",
+                      "Error", JOptionPane.ERROR_MESSAGE);
+          } catch (Exception e) {
+              JOptionPane.showMessageDialog(this,
+                      "Error inesperado: " + e.getMessage(),
+                      "Error", JOptionPane.ERROR_MESSAGE);
+          }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed

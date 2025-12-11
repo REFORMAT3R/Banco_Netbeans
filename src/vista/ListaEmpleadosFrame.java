@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package vista;
-import modelo.*; 
+import modelo.*;
+import BaseDatos.*;
+import java.util.*;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -86,16 +88,18 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
-        // Limpiar la tabla antes de llenarla
         modelo.setRowCount(0);
 
-        // Recorrer la lista de empleados
-        for (Empleado e : banco.getListaEmpleados()) {
-            String apellido = e.getApellido();
-            String codigoEmpleado = e.getCodigoEmpleado();
+        // 1. Obtener empleados desde SQL
+        List<Empleado> empleados = EmpleadoDAO.listarEmpleados();
 
-            // Agregar fila a la tabla
-            modelo.addRow(new Object[]{apellido, codigoEmpleado});
+        // 2. Rellenar la tabla
+        for (Empleado e : empleados) {
+
+            modelo.addRow(new Object[]{
+                e.getApellido(),
+                e.getCodigoEmpleado()
+            });
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

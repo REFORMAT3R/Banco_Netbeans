@@ -3,6 +3,7 @@ package BaseDatos;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import modelo.*;
 
 public class TransaccionDAO {
 
@@ -30,8 +31,8 @@ public class TransaccionDAO {
     }
 
     // 2️⃣ Leer / SELECT → listar todas las transacciones
-    public static List<String> listarTransacciones() {
-        List<String> transacciones = new ArrayList<>();
+    public static List<TransaccionSQL> listarTransacciones() {
+        List<TransaccionSQL> lista = new ArrayList<>();
         String sql = "SELECT * FROM transaccion";
 
         try (Connection conn = Conexion.conectar();
@@ -39,25 +40,28 @@ public class TransaccionDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String t = "ID: " + rs.getInt("idTransaccion") +
-                           " | Cuenta: " + rs.getString("codigoCuenta") +
-                           " | Destino: " + rs.getString("codigoCuentaDestino") +
-                           " | Empleado: " + rs.getString("codigoEmpleado") +
-                           " | Monto: " + rs.getDouble("monto") +
-                           " | Tipo: " + rs.getString("tipo") +
-                           " | Fecha: " + rs.getTimestamp("fechaHora");
-                transacciones.add(t);
+                TransaccionSQL t = new TransaccionSQL(
+                    rs.getInt("idTransaccion"),
+                    rs.getString("codigoCuenta"),
+                    rs.getString("codigoCuentaDestino"),
+                    rs.getString("codigoEmpleado"),
+                    rs.getDouble("monto"),
+                    rs.getString("tipo"),
+                    rs.getTimestamp("fechaHora").toLocalDateTime()
+                );
+
+                lista.add(t);
             }
 
         } catch (SQLException e) {
             System.out.println("Error al listar transacciones: " + e.getMessage());
         }
 
-        return transacciones;
+        return lista;
     }
-    
-        public static List<String> historialCliente(String codigoCliente) {
-        List<String> historial = new ArrayList<>();
+
+    public static List<TransaccionSQL> historialCliente(String codigoCliente) {
+        List<TransaccionSQL> historial = new ArrayList<>();
         String sql = "SELECT t.* FROM transaccion t " +
                      "JOIN cuenta c ON t.codigoCuenta = c.codigoCuenta " +
                      "WHERE c.codigoCliente = ? OR t.codigoCuentaDestino IN (SELECT codigoCuenta FROM cuenta WHERE codigoCliente = ?)";
@@ -69,14 +73,19 @@ public class TransaccionDAO {
             ps.setString(2, codigoCliente);
 
             ResultSet rs = ps.executeQuery();
-            while(rs.next()) {
-                String t = "ID: " + rs.getInt("idTransaccion") +
-                           " | Cuenta: " + rs.getString("codigoCuenta") +
-                           " | Destino: " + rs.getString("codigoCuentaDestino") +
-                           " | Empleado: " + rs.getString("codigoEmpleado") +
-                           " | Monto: " + rs.getDouble("monto") +
-                           " | Tipo: " + rs.getString("tipo") +
-                           " | Fecha: " + rs.getTimestamp("fechaHora");
+
+            while (rs.next()) {
+
+                TransaccionSQL t = new TransaccionSQL(
+                    rs.getInt("idTransaccion"),
+                    rs.getString("codigoCuenta"),
+                    rs.getString("codigoCuentaDestino"),
+                    rs.getString("codigoEmpleado"),
+                    rs.getDouble("monto"),
+                    rs.getString("tipo"),
+                    rs.getTimestamp("fechaHora").toLocalDateTime()
+                );
+
                 historial.add(t);
             }
 
@@ -88,8 +97,9 @@ public class TransaccionDAO {
     }
 
     // 2️⃣b Leer / SELECT → buscar transacción por ID
-    public static String obtenerTransaccion(int idTransaccion) {
+    public static TransaccionSQL obtenerTransaccion(int idTransaccion) {
         String sql = "SELECT * FROM transaccion WHERE idTransaccion = ?";
+
         try (Connection conn = Conexion.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -97,18 +107,21 @@ public class TransaccionDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return "ID: " + rs.getInt("idTransaccion") +
-                       " | Cuenta: " + rs.getString("codigoCuenta") +
-                       " | Destino: " + rs.getString("codigoCuentaDestino") +
-                       " | Empleado: " + rs.getString("codigoEmpleado") +
-                       " | Monto: " + rs.getDouble("monto") +
-                       " | Tipo: " + rs.getString("tipo") +
-                       " | Fecha: " + rs.getTimestamp("fechaHora");
+                return new TransaccionSQL(
+                    rs.getInt("idTransaccion"),
+                    rs.getString("codigoCuenta"),
+                    rs.getString("codigoCuentaDestino"),
+                    rs.getString("codigoEmpleado"),
+                    rs.getDouble("monto"),
+                    rs.getString("tipo"),
+                    rs.getTimestamp("fechaHora").toLocalDateTime()
+                );
             }
 
         } catch (SQLException e) {
             System.out.println("Error al obtener transacción: " + e.getMessage());
         }
+
         return null;
     }
 

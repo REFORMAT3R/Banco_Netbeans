@@ -4,6 +4,7 @@
  */
 package vista;
 import modelo.*; 
+import javax.swing.JOptionPane;
 /**
  *
  * @author Admin
@@ -22,15 +23,22 @@ public class DepositoClienteFrame extends javax.swing.JFrame {
         initComponents();
         this.banco = banco;
         this.usuario = usuario;
+        this.setLocationRelativeTo(null);
         this.setTitle("Deposito");
 
         // Si el usuario es cliente, podríamos pre-llenar su cuenta automáticamente
         if (usuario instanceof UsuarioCliente) {
             Cliente cliente = ((UsuarioCliente) usuario).getCliente();
             jComboBox1.removeAllItems();
-            for (Titular t : banco.getListaTitular()) {
-                if (t.getCliente().getCodigoCliente().equals(cliente.getCodigoCliente())) {
-                    jComboBox1.addItem(t.getCuenta().getCodigoCuenta());
+            
+            // Obtener cuentas del cliente desde la BD
+            java.util.List<Cuenta> cuentasCliente = banco.buscarCuentasDeCliente(cliente.getCodigoCliente());
+            
+            if (cuentasCliente.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No tienes cuentas registradas.");
+            } else {
+                for (Cuenta cuenta : cuentasCliente) {
+                    jComboBox1.addItem(cuenta.getCodigoCuenta());
                 }
             }
         }
@@ -121,31 +129,71 @@ public class DepositoClienteFrame extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         try {
-           double monto = Double.parseDouble(txtMonto.getText());
-           String cta = (String) jComboBox1.getSelectedItem();
-           if(cta == null) { 
-               javax.swing.JOptionPane.showMessageDialog(this, "Seleccione una cuenta");
-               return;
-           }
+            String codigoCuenta = (String) jComboBox1.getSelectedItem();
+            if (codigoCuenta == null || codigoCuenta.trim().isEmpty()) { 
+                JOptionPane.showMessageDialog(this, "Seleccione una cuenta", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-           String codCliente = "";
-           for(Titular t : banco.getListaTitular()){
-               if(t.getCuenta().getCodigoCuenta().equals(cta)){
-                   codCliente = t.getCliente().getCodigoCliente();
-                   break;
-               }
-           }
+            String montoTexto = txtMonto.getText().trim();
+            if (montoTexto.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese un monto", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-           if(codCliente.isEmpty()){
-               javax.swing.JOptionPane.showMessageDialog(this, "Cuenta no encontrada");
-               return;
-           }
+            double monto = Double.parseDouble(montoTexto);
 
-           banco.depositar(codCliente, cta, monto, null, "TXN"+System.currentTimeMillis());
-           javax.swing.JOptionPane.showMessageDialog(this, "¡Depósito realizado con éxito!");
-       } catch(NumberFormatException e){
-           javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un monto válido");
-       }
+            if (monto <= 0) {
+                JOptionPane.showMessageDialog(this, "El monto debe ser mayor a 0", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+            String codCliente = cliente.getCodigoCliente();
+
+            Titular titular = banco.existeTitular(codCliente, codigoCuenta);
+            if (titular == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "La cuenta no pertenece al cliente", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // ✔ Sin generar ID
+            boolean exito = banco.depositar(codCliente, codigoCuenta, monto, null, null);
+
+            if (exito) {
+                Cuenta cuentaActualizada = banco.buscarCuenta(codigoCuenta);
+                double nuevoSaldo = cuentaActualizada.getSaldo();
+
+                JOptionPane.showMessageDialog(this, 
+                    "¡Depósito realizado con éxito!\n" +
+                    "Monto depositado: S/. " + String.format("%.2f", monto) + "\n" +
+                    "Nuevo saldo: S/. " + String.format("%.2f", nuevoSaldo),
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+                txtMonto.setText("");
+
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Error al realizar el depósito. Intente nuevamente.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Ingrese un monto válido (solo números)",
+                "Error de Formato",
+                JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error inesperado: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

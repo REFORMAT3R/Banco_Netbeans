@@ -4,6 +4,8 @@
  */
 package vista;
 import modelo.*; 
+import BaseDatos.*;
+import java.util.*;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -107,25 +109,26 @@ public class ListaClientesFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
-        // Limpiar la tabla antes de llenarla
         modelo.setRowCount(0);
 
-        // Recorrer la lista de clientes
-        for (Cliente c : banco.getListaClientes()) {
-            String codigoCliente = c.getCodigoCliente();
+        // 1. Obtener clientes desde SQL
+        List<Cliente> clientes = ClienteDAO.listarClientes();
 
-            // Obtener la primera cuenta del cliente si tiene alguna
-            String primeraCuenta = "---"; // Valor por defecto si no tiene cuentas
-            for (Titular t : banco.getListaTitular()) {
-                if (t.getCliente().getCodigoCliente().equals(codigoCliente)) {
-                    primeraCuenta = t.getCuenta().getCodigoCuenta();
-                    break; // Solo queremos la primera
-                }
-            }
+        for (Cliente cliente : clientes) {
 
-            // Agregar fila a la tabla
-            modelo.addRow(new Object[]{codigoCliente, primeraCuenta});
-        }// TODO add your handling code here:
+            // 2. Obtener cuentas desde SQL (puede traer 0, 1 o muchas)
+            List<Cuenta> cuentas = CuentaDAO.buscarCuentasCliente(cliente.getCodigoCliente());
+
+            String primeraCuenta = cuentas.isEmpty()
+                    ? "---"
+                    : cuentas.get(0).getCodigoCuenta();
+
+            // 3. Agregar a la tabla
+            modelo.addRow(new Object[]{
+                cliente.getCodigoCliente(),
+                primeraCuenta
+            });
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

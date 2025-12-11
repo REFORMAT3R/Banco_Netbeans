@@ -6,7 +6,7 @@ package vista;
 import modelo.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
-import java.util.ArrayList;
+import java.util.*;
 /**
  *
  * @author Admin
@@ -40,45 +40,33 @@ public class MovimientosClienteFrame extends javax.swing.JFrame {
     }
     // --- MÉTODO AUXILIAR PARA LLENAR LA TABLA ---
     private void cargarTabla(Cuenta cuenta) {
-        // Obtenemos el "Modelo" de la tabla (es lo que controla los datos que se ven)
         DefaultTableModel modelo = (DefaultTableModel) tblMovimientos.getModel();
+        modelo.setRowCount(0); // limpia la tabla
 
-        // Paso 1: Limpiar la tabla por si tenía datos de otra búsqueda
-        modelo.setRowCount(0);
+        // usar el código de cuenta (suponiendo que Cuenta tiene getCodigoCuenta())
+        String codigoCuenta = cuenta.getCodigoCuenta();
 
-        // Paso 2: Obtener el historial de la cuenta
-        ArrayList<Transaccion> historial = cuenta.getHistorial();
+        List<TransaccionSQL> historial = TransaccionSQL.historialCuenta(codigoCuenta);
 
-        // Paso 3: Recorrer el historial y agregar filas
-        for (Transaccion t : historial) {
-            String tipo = determinarTipoTransaccion(t);
+        for (TransaccionSQL t : historial) {
+            String fecha = t.getFechaFormateada();
+            String hora  = t.getHoraFormateada();
 
-            // Agregamos una nueva fila a la tabla con los datos
-            // NOTA: Asegúrate de tener el método getMonto() en Transaccion.java
             modelo.addRow(new Object[]{
-                t.getFechaFormateada(),
-                t.getHoraFormateada(),
-                tipo,
-                "S/. " + t.getMonto() 
+                fecha,
+                hora,
+                t.getTipo(),
+                "S/. " + String.format("%.2f", t.getMonto())
             });
         }
-
         if (historial.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Esta cuenta no tiene movimientos registrados.");
+            JOptionPane.showMessageDialog(this, "Esta cuenta no tiene movimientos registrados en SQL.");
         }
     }
 
     private void limpiarTabla() {
         DefaultTableModel modelo = (DefaultTableModel) tblMovimientos.getModel();
         modelo.setRowCount(0);
-    }
-
-    // Método para saber qué texto poner en la columna "Tipo"
-    private String determinarTipoTransaccion(Transaccion t) {
-        if (t instanceof Deposito) return "Depósito";
-        if (t instanceof Retiro) return "Retiro";
-        if (t instanceof Transferencia) return "Transferencia";
-        return "Desconocido";
     }
 
     /**

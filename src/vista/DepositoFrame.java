@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package vista;
-import modelo.*; 
+import modelo.*;
+import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author Admin
@@ -126,42 +128,68 @@ public class DepositoFrame extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         try {
-            // 1. Obtener datos de los cuadros de texto
-            String cta = txtCuenta.getText();
-            double monto = Double.parseDouble(txtMonto.getText());
-            String idTxn = "TXN" + System.currentTimeMillis();
+            String codigoCuenta = txtCuenta.getText().trim();
+            String montoTxt = txtMonto.getText().trim();
 
-            // 2. CORRECCIÓN: Buscar automáticamente el código del cliente dueño de la cuenta
-            String codCliente = "";
-            
-            // Recorremos la lista de titulares del banco para encontrar de quién es la cuenta
-            for(Titular t : banco.getListaTitular()){
-                if(t.getCuenta().getCodigoCuenta().equals(cta)){
-                    codCliente = t.getCliente().getCodigoCliente();
-                    break; 
-                }
+            if (codigoCuenta.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese una cuenta.");
+                return;
+            }
+            if (montoTxt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese un monto.");
+                return;
             }
 
-            // Si no encontramos dueño, detenemos la operación
-            if(codCliente.isEmpty()) {
-                 javax.swing.JOptionPane.showMessageDialog(this, "Cuenta no encontrada");
-                 return;
+            double monto = Double.parseDouble(montoTxt);
+
+            // 1. Validar que la cuenta exista
+            Cuenta cta = banco.buscarCuenta(codigoCuenta);
+            if (cta == null) {
+                JOptionPane.showMessageDialog(this, "La cuenta no existe.");
+                return;
             }
 
-            // 3. Determinar el empleado (Si 'usuario' sigue en rojo, mira la nota abajo*)
-            Empleado emp = null;
-            if (usuario instanceof UsuarioEmpleado) {
-                emp = ((UsuarioEmpleado) usuario).getEmpleado();
+            // 2. Obtener desde SQL el cliente dueño de la cuenta
+            String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
+            if (codigoCliente == null) {
+                JOptionPane.showMessageDialog(this,
+                    "No se pudo obtener el dueño de la cuenta (Base de Datos).",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
-            // 4. Realizar el depósito
-            banco.depositar(codCliente, cta, monto, emp, idTxn);
-            javax.swing.JOptionPane.showMessageDialog(this, "¡Depósito realizado con éxito!");
+            // 3. Obtener al empleado que hace el depósito
+            Empleado emp = ((UsuarioEmpleado) usuario).getEmpleado();
+
+            // 4. Realizar depósito (SQL incluido)
+            boolean ok = banco.depositar(
+                    codigoCliente,  // ← se obtuvo automáticamente
+                    codigoCuenta,
+                    monto,
+                    emp,
+                    "IGNORAR"       // el ID lo genera la BD
+            );
+
+            if (!ok) {
+                JOptionPane.showMessageDialog(this, "No se pudo realizar el depósito.");
+                return;
+            }
+
+            // 5. Obtener saldo actualizado
+            Cuenta nueva = banco.buscarCuenta(codigoCuenta);
+
+            JOptionPane.showMessageDialog(this,
+                    "Depósito realizado con éxito.\n" +
+                    "Monto: S/. " + String.format("%.2f", monto) + "\n" +
+                    "Nuevo saldo: S/. " + String.format("%.2f", nueva.getSaldo()),
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            txtMonto.setText("");
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "El monto debe ser un número.");
+            JOptionPane.showMessageDialog(this, "Monto inválido.");
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Ocurrió un error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

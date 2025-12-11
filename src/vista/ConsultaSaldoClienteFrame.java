@@ -29,9 +29,18 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
 
         // Llenar JComboBox con las cuentas del cliente
         comboBoxCuentas.removeAllItems();
-        for (Titular t : banco.getListaTitular()) {
-            if (t.getCliente().equals(((UsuarioCliente) usuario).getCliente())) {
-                comboBoxCuentas.addItem(t.getCuenta().getCodigoCuenta());
+        if (usuario instanceof UsuarioCliente) {
+            Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+            
+            // Obtener cuentas del cliente desde la BD
+            java.util.List<Cuenta> cuentasCliente = banco.buscarCuentasDeCliente(cliente.getCodigoCliente());
+            
+            if (cuentasCliente.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No tienes cuentas registradas.");
+            } else {
+                for (Cuenta cuenta : cuentasCliente) {
+                    comboBoxCuentas.addItem(cuenta.getCodigoCuenta());
+                }
             }
         }
         // Inicializar el label de saldo vacío o con guiones
@@ -130,30 +139,34 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
     private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
         // TODO add your handling code here:
         String codCuenta = (String) comboBoxCuentas.getSelectedItem();
-        if (codCuenta == null) {
+        if (codCuenta == null || codCuenta.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "No hay cuentas disponibles.");
             return;
         }
 
-        // Buscamos la cuenta en el banco
-        Cuenta cuenta = null;
-        for (Titular t : banco.getListaTitular()) {
-            if (t.getCuenta().getCodigoCuenta().equals(codCuenta)) {
-                cuenta = t.getCuenta();
-                break;
-            }
-        }
+        // Buscar la cuenta directamente en la BD
+        Cuenta cuenta = banco.buscarCuenta(codCuenta);
 
         if (cuenta != null) {
+            // Mostrar el saldo con formato
             lblNumSaldo.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
         } else {
-            JOptionPane.showMessageDialog(this, "Cuenta no encontrada.");
+            JOptionPane.showMessageDialog(this, "Cuenta no encontrada en la base de datos.");
             lblNumSaldo.setText("---");
         }
     }//GEN-LAST:event_btnConsultarActionPerformed
 
     private void comboBoxCuentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxCuentasActionPerformed
         // TODO add your handling code here:
+         String codCuenta = (String) comboBoxCuentas.getSelectedItem();
+        if (codCuenta != null && !codCuenta.trim().isEmpty()) {
+            Cuenta cuenta = banco.buscarCuenta(codCuenta);
+            if (cuenta != null) {
+                lblNumSaldo.setText("S/. " + String.format("%.2f", cuenta.getSaldo()));
+            } else {
+                lblNumSaldo.setText("---");
+            }
+        }
     }//GEN-LAST:event_comboBoxCuentasActionPerformed
 
     /**

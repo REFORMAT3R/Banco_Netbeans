@@ -5,6 +5,7 @@
 package vista;
 import modelo.*; // Importamos la lógica
 import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author LENOVO
@@ -260,7 +261,6 @@ public class RegistrarClienteForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // 1. OBTENER DATOS
         String nombre = jTextField1.getText().trim();
         String apellido = jTextField4.getText().trim();
         String celular = jTextField2.getText().trim();
@@ -300,8 +300,7 @@ public class RegistrarClienteForm extends javax.swing.JFrame {
             return;
         }
 
-        // Validación de Edad
-        int edad = 0;
+        int edad;
         try {
             edad = Integer.parseInt(edadStr);
             if (!Validaciones.validarEdad(edad)) {
@@ -313,44 +312,41 @@ public class RegistrarClienteForm extends javax.swing.JFrame {
             return;
         }
 
-        // 3. LÓGICA DE NEGOCIO (DUPLICADOS Y REGISTRO)
-        
-        // Verificar duplicados
-        if (banco.buscarCliente(codigoCliente) != null) {
-            JOptionPane.showMessageDialog(this, "Error: Ya existe un cliente con el código " + codigoCliente);
-            return;
-        }
-        for(Cliente c : banco.getListaClientes()) {
-            if(c.getDni().equals(dni)) {
-                JOptionPane.showMessageDialog(this, "Error: Ya existe un cliente con el DNI " + dni);
-                return;
-            }
-        }
-
-        // Intentar Registrar
+        // 3. CREAR CLIENTE Y REGISTRAR EN BD USANDO DAO DIRECTO
         try {
-            // A) Crear objeto Cliente
             Cliente nuevoCliente = new Cliente(nombre, apellido, celular, correo, edad, dni, direccion, codigoCliente);
 
-            // B) Registrar en el Banco
-            banco.registrarCliente(nuevoCliente);
+            boolean exito = ClienteDAO.insertarCliente(
+                nuevoCliente.getNombre(),
+                nuevoCliente.getApellido(),
+                nuevoCliente.getTelefono(),
+                nuevoCliente.getCorreo(),
+                nuevoCliente.getEdad(),
+                nuevoCliente.getDni(),
+                nuevoCliente.getDireccion(),
+                nuevoCliente.getCodigoCliente()
+            );
 
-            // C) Crear credenciales web (Opcional)
-            int respuesta = JOptionPane.showConfirmDialog(this, 
-                    "Cliente registrado con éxito.\n¿Desea crear un usuario y contraseña para acceso web?", 
-                    "Crear Credenciales", 
-                    JOptionPane.YES_NO_OPTION);
-            
-            if (respuesta == JOptionPane.YES_OPTION) {
-                crearUsuarioParaCliente(nuevoCliente);
+            if (exito) {
+                JOptionPane.showMessageDialog(this, "Cliente registrado correctamente en la base de datos.");
+
+                // Opcional: crear usuario web
+                int respuesta = JOptionPane.showConfirmDialog(this, 
+                        "¿Desea crear un usuario y contraseña para acceso web?", 
+                        "Crear Credenciales", 
+                        JOptionPane.YES_NO_OPTION);
+
+                if (respuesta == JOptionPane.YES_OPTION) {
+                    crearUsuarioParaCliente(nuevoCliente);
+                }
+
+                this.dispose(); // Cerrar ventana
             } else {
-                JOptionPane.showMessageDialog(this, "Cliente registrado sin acceso web.");
+                JOptionPane.showMessageDialog(this, "Error: No se pudo registrar el cliente. Puede que ya exista.");
             }
 
-            this.dispose(); // Cerrar ventana
-
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al registrar: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al registrar cliente: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

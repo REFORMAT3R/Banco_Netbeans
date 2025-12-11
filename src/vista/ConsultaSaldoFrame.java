@@ -83,23 +83,44 @@ public class ConsultaSaldoFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
         String codCuenta = txtCuenta.getText().trim();
         
+        // Validar que no esté vacío
         if (codCuenta.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese un número de cuenta.");
+            lblSaldo.setText("---");
+            return;
+        }
+        
+        // Validar formato del código de cuenta
+        if (!Validaciones.validarCodigoCuenta(codCuenta)) {
+            JOptionPane.showMessageDialog(this, 
+                "Error: " + Validaciones.obtenerMensajeError("codigo_cuenta"),
+                "Formato Inválido", 
+                JOptionPane.WARNING_MESSAGE);
+            lblSaldo.setText("---");
             return;
         }
 
+        // Buscar la cuenta en la base de datos
         Cuenta cuenta = banco.buscarCuenta(codCuenta);
 
         if (cuenta != null) {
-            // Mostramos el saldo en el Label grande
-            double saldo = cuenta.getSaldo(); 
+            // Mostrar el saldo actualizado desde la BD
+            double saldo = cuenta.getSaldo();
             lblSaldo.setText("S/. " + String.format("%.2f", saldo));
+            
+            // Log de consulta exitosa
+            logger.info("Consulta de saldo exitosa para cuenta: " + codCuenta);
         } else {
-            JOptionPane.showMessageDialog(this, "Cuenta no encontrada.");
+            JOptionPane.showMessageDialog(this, 
+                "Cuenta no encontrada en la base de datos.",
+                "Cuenta No Encontrada",
+                JOptionPane.ERROR_MESSAGE);
             lblSaldo.setText("---");
+            
+            // Log de cuenta no encontrada
+            logger.warning("Intento de consulta para cuenta inexistente: " + codCuenta);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

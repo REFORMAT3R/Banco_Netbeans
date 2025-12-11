@@ -3,6 +3,7 @@ package BaseDatos;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import modelo.*;
 
 public class EmpleadoDAO {
 
@@ -34,20 +35,28 @@ public class EmpleadoDAO {
     }
 
     // 2️⃣ Leer / SELECT → listar todos los empleados
-    public static List<String> listarEmpleados() {
-        List<String> empleados = new ArrayList<>();
-        String sql = "SELECT * FROM empleado";
+    public static List<Empleado> listarEmpleados() {
+        List<Empleado> empleados = new ArrayList<>();
+        String sql = "SELECT codigoEmpleado, nombre, apellido, telefono, correo, edad, dni, direccion FROM empleado";
 
         try (Connection conn = Conexion.conectar();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String empleado = rs.getString("codigoEmpleado") + " - " +
-                                  rs.getString("nombre") + " " +
-                                  rs.getString("apellido") + " - " +
-                                  rs.getString("correo");
-                empleados.add(empleado);
+
+                Empleado emp = new Empleado(
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("telefono"),
+                    rs.getString("correo"),
+                    rs.getInt("edad"),
+                    rs.getString("dni"),
+                    rs.getString("direccion"),
+                    rs.getString("codigoEmpleado")
+                );
+
+                empleados.add(emp);
             }
 
         } catch (SQLException e) {
@@ -57,30 +66,34 @@ public class EmpleadoDAO {
         return empleados;
     }
 
+
     // 2️⃣b Leer / SELECT → buscar un empleado específico por código
-    public static String obtenerEmpleado(String codigoEmpleado) {
-        String sql = "SELECT * FROM empleado WHERE codigoEmpleado = ?";
+    // En BaseDatos.EmpleadoDAO
+    public static Empleado obtenerEmpleado(String codigoEmpleado) {
+        String sql = "SELECT nombre, apellido, telefono, correo, edad, dni, direccion, codigoEmpleado FROM empleado WHERE codigoEmpleado = ?";
         try (Connection conn = Conexion.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, codigoEmpleado);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("codigoEmpleado") + " - " +
-                       rs.getString("nombre") + " " +
-                       rs.getString("apellido") + " - " +
-                       rs.getString("correo") + " - " +
-                       rs.getString("telefono") + " - " +
-                       rs.getInt("edad") + " - " +
-                       rs.getString("dni") + " - " +
-                       rs.getString("direccion");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Empleado e = new Empleado(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("telefono"),
+                        rs.getString("correo"),
+                        rs.getInt("edad"),
+                        rs.getString("dni"),
+                        rs.getString("direccion"),
+                        rs.getString("codigoEmpleado")
+                    );
+                    return e;
+                }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error al obtener empleado: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error obtenerEmpleadoObjeto: " + ex.getMessage());
         }
-        return null; // si no existe
+        return null;
     }
 
     // Actualizar teléfono

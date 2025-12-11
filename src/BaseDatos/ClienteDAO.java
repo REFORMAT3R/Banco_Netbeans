@@ -3,6 +3,7 @@ package BaseDatos;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import modelo.*;
 
 public class ClienteDAO {
 
@@ -34,8 +35,8 @@ public class ClienteDAO {
     }
 
     // 2️⃣ Leer / SELECT → listar todos los clientes
-    public static List<String> listarClientes() {
-        List<String> clientes = new ArrayList<>();
+    public static List<Cliente> listarClientes() {
+        List<Cliente> lista = new ArrayList<>();
         String sql = "SELECT * FROM cliente";
 
         try (Connection conn = Conexion.conectar();
@@ -43,18 +44,51 @@ public class ClienteDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String cliente = rs.getString("codigoCliente") + " - " +
-                                 rs.getString("nombre") + " " +
-                                 rs.getString("apellido") + " - " +
-                                 rs.getString("correo");
-                clientes.add(cliente);
+                Cliente cl = new Cliente(
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("telefono"),
+                    rs.getString("correo"),
+                    rs.getInt("edad"),
+                    rs.getString("dni"),
+                    rs.getString("direccion"),
+                    rs.getString("codigoCliente")
+                );
+                lista.add(cl);
             }
-
         } catch (SQLException e) {
             System.out.println("Error al listar clientes: " + e.getMessage());
         }
 
-        return clientes;
+        return lista;
+    }
+    
+// En BaseDatos.ClienteDAO
+    public static Cliente obtenerCliente(String codigoCliente) {
+        String sql = "SELECT nombre, apellido, telefono, correo, edad, dni, direccion, codigoCliente FROM cliente WHERE codigoCliente = ?";
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, codigoCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cliente cl = new Cliente(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("telefono"),
+                        rs.getString("correo"),
+                        rs.getInt("edad"),
+                        rs.getString("dni"),
+                        rs.getString("direccion"),
+                        rs.getString("codigoCliente")
+                    );
+                    return cl;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error obtenerClienteObjeto: " + e.getMessage());
+        }
+        return null;
     }
 
     // Actualizar teléfono

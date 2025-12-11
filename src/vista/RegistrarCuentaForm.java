@@ -5,6 +5,7 @@
 package vista;
 import modelo.*; // Importar las clases lógicas
 import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author LENOVO
@@ -147,89 +148,66 @@ public class RegistrarCuentaForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // 1. OBTENER DATOS
-        String codCuenta = jTextField1.getText().trim();
-        String dniCliente = jTextField2.getText().trim();
-        String saldoStr = jTextField3.getText().trim();
+       String codCuenta = jTextField1.getText().trim();
+       String dniCliente = jTextField2.getText().trim();
+       String saldoStr = jTextField3.getText().trim();
 
-        // ==========================================================
-        // 2. VALIDACIONES USANDO TU ARCHIVO "Validaciones.java"
-        // ==========================================================
-        
-        // A) Validar que los campos no estén vacíos (usando validarTexto)
-        if (!Validaciones.validarTexto(codCuenta) || !Validaciones.validarTexto(dniCliente)) {
-             javax.swing.JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios.");
-             return;
-        }
+       // 2. VALIDACIONES
+       if (!Validaciones.validarTexto(codCuenta) || !Validaciones.validarTexto(dniCliente)) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios.");
+            return;
+       }
+       if (!Validaciones.validarCodigoCuenta(codCuenta)) {
+            JOptionPane.showMessageDialog(this, "Código de Cuenta inválido.\n" + Validaciones.obtenerMensajeError("codigo_cuenta"));
+            return;
+       }
+       if (!Validaciones.validarDNI(dniCliente)) {
+            JOptionPane.showMessageDialog(this, "DNI inválido.\n" + Validaciones.obtenerMensajeError("dni"));
+            return;
+       }
 
-        // B) Validar el formato del Código de Cuenta (Debe ser CTA + números)
-        // Revisa tu archivo Validaciones.java, método validarCodigoCuenta
-        if (!Validaciones.validarCodigoCuenta(codCuenta)) {
-             javax.swing.JOptionPane.showMessageDialog(this, 
-                 "Código de Cuenta inválido.\n" + Validaciones.obtenerMensajeError("codigo_cuenta"));
-             return;
-        }
+       // 3. LÓGICA SQL
+       try {
+           // A) Buscar cliente en SQL por DNI
+           Cliente dueno = ClienteDAO.obtenerCliente(dniCliente);
+           if (dueno == null) {
+               JOptionPane.showMessageDialog(this, "No se encontró ningún cliente con el DNI: " + dniCliente);
+               return;
+           }
 
-        // C) Validar formato del DNI (8 dígitos)
-        // Revisa tu archivo Validaciones.java, método validarDNI
-        if (!Validaciones.validarDNI(dniCliente)) {
-             javax.swing.JOptionPane.showMessageDialog(this, 
-                 "DNI inválido.\n" + Validaciones.obtenerMensajeError("dni"));
-             return;
-        }
+           // B) Verificar si ya existe la cuenta en SQL
+           if (CuentaDAO.obtenerCuenta(codCuenta) != null) {
+               JOptionPane.showMessageDialog(this, "Error: Ya existe una cuenta con ese código.");
+               return;
+           }
 
-        // ==========================================================
-        // 3. LÓGICA DE NEGOCIO (BUSCAR Y CREAR)
-        // ==========================================================
-        try {
-            // Verificar si la cuenta ya existe en el banco
-            if (banco.buscarCuenta(codCuenta) != null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Error: Ya existe una cuenta con ese código.");
-                return;
-            }
+           // C) Crear la cuenta en SQL
+           double saldoInicial = 0;
+           if (!saldoStr.isEmpty()) {
+               try {
+                   saldoInicial = Double.parseDouble(saldoStr);
+                   if (saldoInicial < 0) {
+                       JOptionPane.showMessageDialog(this, "El saldo inicial no puede ser negativo.");
+                       return;
+                   }
+               } catch (NumberFormatException e) {
+                   JOptionPane.showMessageDialog(this, "El saldo debe ser un número válido.");
+                   return;
+               }
+           }
 
-            // Buscar al dueño usando el DNI validado
-            Cliente dueno = null;
-            // Recorremos la lista para buscar por DNI
-            for (Cliente c : banco.getListaClientes()) {
-                if (c.getDni().equals(dniCliente)) {
-                    dueno = c;
-                    break;
-                }
-            }
+           boolean exito = CuentaDAO.insertarCuenta(codCuenta, dueno.getCodigoCliente());
 
-            // Si no encontramos al cliente
-            if (dueno == null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "No se encontró ningún cliente con el DNI: " + dniCliente);
-                return;
-            }
+           if (exito) {
+               JOptionPane.showMessageDialog(this, "¡Cuenta creada exitosamente para " + dueno.getNombre() + "!");
+               this.dispose();
+           } else {
+               JOptionPane.showMessageDialog(this, "Ocurrió un error al crear la cuenta. Intente nuevamente.");
+           }
 
-            // Crear la cuenta
-            banco.crearCuenta(codCuenta, dueno);
-
-            // Asignar Saldo Inicial (Opcional) con validación básica
-            if (!saldoStr.isEmpty()) {
-                try {
-                    double saldo = Double.parseDouble(saldoStr);
-                    if (saldo < 0) {
-                         javax.swing.JOptionPane.showMessageDialog(this, "El saldo inicial no puede ser negativo.");
-                         return; // No cerramos ventana para que corrija
-                    }
-                    Cuenta nuevaCuenta = banco.buscarCuenta(codCuenta);
-                    if(nuevaCuenta != null) nuevaCuenta.setSaldo(saldo);
-                    
-                } catch (NumberFormatException e) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "El saldo debe ser un número válido.");
-                    return;
-                }
-            }
-
-            // Éxito
-            javax.swing.JOptionPane.showMessageDialog(this, "¡Cuenta creada exitosamente para " + dueno.getNombre() + "!");
-            this.dispose(); // Cerrar ventana
-
-        } catch (Exception e) {
-             javax.swing.JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage());
-        }
+       } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage());
+       }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

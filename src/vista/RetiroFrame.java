@@ -4,6 +4,8 @@
  */
 package vista;
 import modelo.*; 
+import javax.swing.JOptionPane;
+import BaseDatos.*;
 /**
  *
  * @author Admin
@@ -122,48 +124,71 @@ public class RetiroFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        try {
-            String codCuenta = txtCuenta.getText();
-            double monto = Double.parseDouble(txtMonto.getText());
-            String idTxn = "TXN" + System.currentTimeMillis();
+    try {
+            String codigoCuenta = txtCuenta.getText().trim();
+            String montoTxt = txtMonto.getText().trim();
 
-            // 1. Necesitamos el código del cliente dueño de la cuenta
-            // Opción rápida: Buscar al titular usando la cuenta
-            Titular titular = banco.existeTitular(null, codCuenta); 
-            // NOTA: Tu método existeTitular pide (codCliente, codCuenta). 
-            // Si no tienes el cliente, tendrás que buscar primero la cuenta o pedir el DNI en el formulario.
-            // Haremos un truco: Iterar los titulares del banco para hallar al dueño.
-
-            String codCliente = "";
-            for(Titular t : banco.getListaTitular()){
-                if(t.getCuenta().getCodigoCuenta().equals(codCuenta)){
-                    codCliente = t.getCliente().getCodigoCliente();
-                    break;
-                }
+            if (codigoCuenta.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese una cuenta.");
+                return;
+            }
+            if (montoTxt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese un monto.");
+                return;
             }
 
-            // 2. Determinar quién hace el retiro (Empleado o Cajero)
-            Empleado emp = null;
-            if (usuario instanceof UsuarioEmpleado) {
-                emp = ((UsuarioEmpleado) usuario).getEmpleado();
+            double monto = Double.parseDouble(montoTxt);
+
+            // 1. Validar que la cuenta exista (usando la lógica del banco, igual que en depósito)
+            Cuenta cta = banco.buscarCuenta(codigoCuenta);
+            if (cta == null) {
+                JOptionPane.showMessageDialog(this, "La cuenta no existe.");
+                return;
             }
 
-            // 3. Llamar a tu lógica original
-            // Validar primero si se encontró el cliente
-            if (!codCliente.isEmpty()) {
-                Transaccion t = banco.retirar(codCliente, codCuenta, monto, emp, idTxn);
-
-                if (t != null) { // Si banco devuelve un objeto, fue exitoso
-                    javax.swing.JOptionPane.showMessageDialog(this, "Retiro realizado con éxito.");
-                } else {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Fondos insuficientes o datos erróneos.");
-                }
-            } else {
-                 javax.swing.JOptionPane.showMessageDialog(this, "Cuenta no encontrada.");
+            // 2. Obtener desde SQL el cliente dueño de la cuenta
+            String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
+            if (codigoCliente == null) {
+                JOptionPane.showMessageDialog(this,
+                    "No se pudo obtener el dueño de la cuenta (Base de Datos).",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // 3. Obtener empleado logueado
+            Empleado emp = ((UsuarioEmpleado) usuario).getEmpleado();
+
+            // 4. Realizar RETIRO (SQL incluido)
+            boolean ok = banco.retirar(
+                    codigoCliente,  // dueño obtenido desde SQL
+                    codigoCuenta,
+                    monto,
+                    emp,
+                    "IGNORAR"       // NO USAMOS ESTE ID, la BD genera el idTransaccion
+            );
+
+            if (!ok) {
+                JOptionPane.showMessageDialog(this,
+                    "No se pudo realizar el retiro.\n" +
+                    "Saldo insuficiente o datos inválidos.");
+                return;
+            }
+
+            // 5. Obtener saldo actualizado
+            Cuenta nueva = banco.buscarCuenta(codigoCuenta);
+
+            JOptionPane.showMessageDialog(this,
+                    "Retiro realizado con éxito.\n" +
+                    "Monto: S/. " + String.format("%.2f", monto) + "\n" +
+                    "Nuevo saldo: S/. " + String.format("%.2f", nueva.getSaldo()),
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            txtMonto.setText("");
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un monto válido.");
+            JOptionPane.showMessageDialog(this, "Monto inválido.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

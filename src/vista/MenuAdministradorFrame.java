@@ -80,7 +80,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
         jPanelMenuAdmin.setBackground(new java.awt.Color(239, 184, 16));
         jPanelMenuAdmin.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        logo.setForeground(new java.awt.Color(0, 0, 0));
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/logoBanco.png"))); // NOI18N
         jPanelMenuAdmin.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
 
@@ -105,7 +104,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnSalir.setBackground(new java.awt.Color(204, 204, 204));
         btnSalir.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnSalir.setForeground(new java.awt.Color(0, 0, 0));
         btnSalir.setText("Cerrar Sesión");
         btnSalir.setBorderPainted(false);
         btnSalir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -117,7 +115,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnMovimientos1.setBackground(new java.awt.Color(204, 204, 204));
         btnMovimientos1.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnMovimientos1.setForeground(new java.awt.Color(0, 0, 0));
         btnMovimientos1.setText("Ver Movimientos");
         btnMovimientos1.setBorderPainted(false);
         btnMovimientos1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -127,7 +124,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnMovimientos2.setBackground(new java.awt.Color(204, 204, 204));
         btnMovimientos2.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnMovimientos2.setForeground(new java.awt.Color(0, 0, 0));
         btnMovimientos2.setText("Lista de empleados");
         btnMovimientos2.setBorderPainted(false);
         btnMovimientos2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -137,7 +133,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnMovimientos.setBackground(new java.awt.Color(204, 204, 204));
         btnMovimientos.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnMovimientos.setForeground(new java.awt.Color(0, 0, 0));
         btnMovimientos.setText("Lista de clientes");
         btnMovimientos.setBorderPainted(false);
         btnMovimientos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -147,7 +142,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnSaldo.setBackground(new java.awt.Color(204, 204, 204));
         btnSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnSaldo.setForeground(new java.awt.Color(0, 0, 0));
         btnSaldo.setText("Ver Saldo");
         btnSaldo.setBorderPainted(false);
         btnSaldo.addActionListener(this::btnSaldoActionPerformed);
@@ -155,7 +149,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(204, 204, 204));
         jButton1.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.setText("Transferencia");
         jButton1.setBorderPainted(false);
         jButton1.addActionListener(this::jButton1ActionPerformed);
@@ -163,7 +156,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnRetiro.setBackground(new java.awt.Color(204, 204, 204));
         btnRetiro.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnRetiro.setForeground(new java.awt.Color(0, 0, 0));
         btnRetiro.setText("Retiro");
         btnRetiro.setBorderPainted(false);
         btnRetiro.addActionListener(this::btnRetiroActionPerformed);
@@ -171,7 +163,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnDeposito.setBackground(new java.awt.Color(204, 204, 204));
         btnDeposito.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnDeposito.setForeground(new java.awt.Color(0, 0, 0));
         btnDeposito.setText("Depósito");
         btnDeposito.setBorderPainted(false);
         btnDeposito.addActionListener(this::btnDepositoActionPerformed);
@@ -179,7 +170,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnRegCuenta.setBackground(new java.awt.Color(204, 204, 204));
         btnRegCuenta.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnRegCuenta.setForeground(new java.awt.Color(0, 0, 0));
         btnRegCuenta.setText("Registrar Cuenta");
         btnRegCuenta.setBorderPainted(false);
         btnRegCuenta.addActionListener(this::btnRegCuentaActionPerformed);
@@ -187,7 +177,6 @@ public class MenuAdministradorFrame extends javax.swing.JFrame {
 
         btnRegCliente.setBackground(new java.awt.Color(204, 204, 204));
         btnRegCliente.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        btnRegCliente.setForeground(new java.awt.Color(0, 0, 0));
         btnRegCliente.setText("Registrar Cliente");
         btnRegCliente.setBorderPainted(false);
         btnRegCliente.addActionListener(this::btnRegClienteActionPerformed);

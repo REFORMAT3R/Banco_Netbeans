@@ -1,20 +1,13 @@
 package modelo;
-
+        
+import BaseDatos.*;
 import java.util.*;
 
 public class Banco {
-    /*Atributos - ArrayLists*/
-    private ArrayList<Cliente> listaClientes;
-    private ArrayList<Empleado> listaEmpleados;
-    private ArrayList<Cuenta> listaCuentas;
-    private ArrayList<Titular> listaTitular;
-
-    /*Constructor*/
+    private ArrayList<Titular> titulares;
+    /*Constructor vacío - ya no necesitamos ArrayLists en memoria*/
     public Banco() {
-        this.listaClientes = new ArrayList<>();
-        this.listaEmpleados = new ArrayList<>();
-        this.listaCuentas = new ArrayList<>();
-        this.listaTitular = new ArrayList<>();
+        this.titulares = new ArrayList<>();
     }
 
     /* === MÉTODOS DE REGISTRO === */
@@ -25,14 +18,27 @@ public class Banco {
             return;
         }
         
-        if (buscarCliente(cliente.getCodigoCliente()) != null) {
+        // Verificar si ya existe en la BD
+        if (ClienteDAO.obtenerCliente(cliente.getCodigoCliente()) != null) {
             System.out.println("Error: Ya existe un cliente con el codigo " + cliente.getCodigoCliente());
             return;
         }
         
-        listaClientes.add(cliente);
-        System.out.println("Cliente registrado correctamente: " + cliente.getApellido() + " " 
-        + cliente.getNombre());
+        // Insertar en la base de datos
+        boolean exito = ClienteDAO.insertarCliente(
+            cliente.getNombre(),
+            cliente.getApellido(),
+            cliente.getTelefono(),
+            cliente.getCorreo(),
+            cliente.getEdad(),
+            cliente.getDni(),
+            cliente.getDireccion(),
+            cliente.getCodigoCliente()
+        );
+        
+        if (exito) {
+            System.out.println("Cliente registrado correctamente: " + cliente.getApellido() + " " + cliente.getNombre());
+        }
     }
 
     public void registrarCuenta(Cuenta cuenta) {
@@ -41,12 +47,13 @@ public class Banco {
             return;
         }
         
-        if (buscarCuenta(cuenta.getCodigoCuenta()) != null) {
+        // Verificar si ya existe en la BD
+        if (CuentaDAO.obtenerCuenta(cuenta.getCodigoCuenta()) != null) {
             System.out.println("Error: Ya existe una cuenta con el codigo " + cuenta.getCodigoCuenta());
             return;
         }
         
-        listaCuentas.add(cuenta);
+        System.out.println("Error: Use crearCuenta() para asociar la cuenta con un cliente.");
     }
 
     public void registrarEmpleado(Empleado empleado) {
@@ -55,28 +62,32 @@ public class Banco {
             return;
         }
         
-        if (buscarEmpleado(empleado.getCodigoEmpleado()) != null) {
+        // Verificar si ya existe en la BD
+        if (EmpleadoDAO.obtenerEmpleado(empleado.getCodigoEmpleado()) != null) {
             System.out.println("Error: Ya existe un empleado con el codigo " + empleado.getCodigoEmpleado());
             return;
         }
         
-        listaEmpleados.add(empleado);
-        System.out.println("Empleado registrado correctamente: " + empleado.getApellido() + " " 
-        + empleado.getNombre());
+        // Insertar en la base de datos
+        boolean exito = EmpleadoDAO.insertarEmpleado(
+            empleado.getNombre(),
+            empleado.getApellido(),
+            empleado.getTelefono(),
+            empleado.getCorreo(),
+            empleado.getEdad(),
+            empleado.getDni(),
+            empleado.getDireccion(),
+            empleado.getCodigoEmpleado()
+        );
+        
+        if (exito) {
+            System.out.println("Empleado registrado correctamente: " + empleado.getApellido() + " " + empleado.getNombre());
+        }
     }
 
     public void registrarTitular(Cliente cliente, Cuenta cuenta) {
-        if (!Validaciones.validarObjeto(cliente) || !Validaciones.validarObjeto(cuenta)) {
-            System.out.println("Error: Cliente o cuenta no pueden ser nulos.");
-            return;
-        }
-        
-        if (existeTitular(cliente.getCodigoCliente(), cuenta.getCodigoCuenta()) != null) {
-            System.out.println("Error: Ya existe un titular con esos datos.");
-            return;
-        }
-        
-        listaTitular.add(new Titular(cliente, cuenta));
+        // Ya no es necesario, la relación se maneja en la tabla cuenta
+        System.out.println("Relación cliente-cuenta ya establecida en la base de datos.");
     }
 
     /* === MÉTODOS DE BÚSQUEDA === */
@@ -85,54 +96,67 @@ public class Banco {
         if (!Validaciones.validarTexto(codigoEmpleado)) {
             return null;
         }
-        
-        for (Empleado e : listaEmpleados) {
-            if(e.getCodigoEmpleado().equalsIgnoreCase(codigoEmpleado)) {
-                return e;
-            }
+
+        // Solicita el objeto directamente
+        Empleado e = EmpleadoDAO.obtenerEmpleado(codigoEmpleado);
+
+        if (e == null) {
+            return null;
         }
-        return null;
+
+        return e; // Listo, ya no hay nada que parsear
     }
+
 
     public Cliente buscarCliente(String codigoCliente) {
         if (!Validaciones.validarTexto(codigoCliente)) {
             return null;
         }
-        
-        for (Cliente c : listaClientes) {
-            if(c.getCodigoCliente().equalsIgnoreCase(codigoCliente)) {
-                return c;
-            }
+
+        // Ahora obtenerCliente devuelve un Cliente directamente
+        Cliente cliente = ClienteDAO.obtenerCliente(codigoCliente);
+
+        if (cliente == null) {
+            return null;
         }
-        return null;
+
+        return cliente; // No hay nada más que parsear
     }
+
 
     public Cuenta buscarCuenta(String codigoCuenta) {
         if (!Validaciones.validarTexto(codigoCuenta)) {
             return null;
         }
-        
-        for (Cuenta c : listaCuentas) {
-            if(c.getCodigoCuenta().equalsIgnoreCase(codigoCuenta)) {
-                return c;
-            }
-        }
-        return null;
+
+        // El DAO devuelve directamente una Cuenta
+        return CuentaDAO.obtenerCuenta(codigoCuenta);
     }
 
     public Titular existeTitular(String codigoCliente, String codigoCuenta) {
         if (!Validaciones.validarTexto(codigoCliente) || !Validaciones.validarTexto(codigoCuenta)) {
             return null;
         }
-        
-        for(Titular t : listaTitular) {
-            if(t.getCliente().getCodigoCliente().equalsIgnoreCase(codigoCliente) && 
-            t.getCuenta().getCodigoCuenta().equalsIgnoreCase(codigoCuenta)) {
-                return t;
+
+        // 1. Buscar el cliente
+        Cliente cliente = buscarCliente(codigoCliente);
+        if (cliente == null) return null;
+
+        // 2. Buscar la cuenta
+        Cuenta cuenta = buscarCuenta(codigoCuenta);
+        if (cuenta == null) return null;
+
+        // 3. Verificar en la lista interna de titulares del banco
+        for (Titular t : titulares) { // tu lista RAM
+            if (t.getCliente().getCodigoCliente().equals(codigoCliente) &&
+                t.getCuenta().getCodigoCuenta().equals(codigoCuenta)) {
+                return t; // Ya existe el titular
             }
         }
-        return null;
+
+        return null; // No existe
     }
+
 
     /* === CREACIÓN DE CUENTA === */
 
@@ -147,52 +171,77 @@ public class Banco {
             return;
         }
         
-        Cuenta nuevaCuenta = new Cuenta(codigoCuenta);
-        registrarCuenta(nuevaCuenta);
-        registrarTitular(cliente, nuevaCuenta);
-        System.out.println("Cuenta creada y registrada correctamente");
+        // Insertar cuenta en la BD asociada al cliente
+        boolean exito = CuentaDAO.insertarCuenta(codigoCuenta, cliente.getCodigoCliente());
+        
+        if (exito) {
+            System.out.println("Cuenta creada y registrada correctamente");
+        }
     }
 
     /* === TRANSACCIONES === */
 
-    public Deposito depositar(String codigoCliente, String codigoCuenta, double monto, 
-                            Empleado empleado, String ID) {
+    public boolean depositar(String codigoCliente, String codigoCuenta, double monto, Empleado empleado
+            , String ID) {
+
         if (!validarDatosTransaccion(codigoCliente, codigoCuenta, ID)) {
-            return null;
+            return false;
         }
-        
+
         Titular titular = existeTitular(codigoCliente, codigoCuenta);
-        
-        if(titular != null) {
-            Deposito dep = new Deposito(empleado, monto, ID);
-            dep.procesar(titular.getCuenta());
-            titular.getCuenta().agregarTransaccion(dep);
-            imprimirEstadoValidacion(true, dep);
-            return dep;
-        } else {
-            imprimirEstadoValidacion(false, null);
-            return null;
+
+        if (titular != null) {
+            Cuenta cuenta = titular.getCuenta();
+
+            // Actualizar saldo
+            cuenta.setSaldo(cuenta.getSaldo() + monto);
+            CuentaDAO.actualizarSaldo(codigoCuenta, cuenta.getSaldo());
+
+            // Registrar en SQL (el ID lo genera la BD)
+            String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
+            TransaccionDAO.insertarTransaccion(codigoCuenta, null, codigoEmp, monto, "deposito");
+
+            return true;
         }
+        return false;
     }
 
-    public Retiro retirar(String codigoCliente, String codigoCuenta, double monto, 
-                        Empleado empleado, String ID) {
+
+    public boolean retirar(String codigoCliente, String codigoCuenta, double monto,
+                           Empleado empleado, String ID) {
+
+        // 1. Validar datos básicos
         if (!validarDatosTransaccion(codigoCliente, codigoCuenta, ID)) {
-            return null;
+            return false;
         }
-        
+
+        // 2. Verificar que el cliente sea dueño de la cuenta
         Titular titular = existeTitular(codigoCliente, codigoCuenta);
-        
-        if(titular != null) {
-            Retiro ret = new Retiro(empleado, monto, ID);
-            ret.procesar(titular.getCuenta());
-            titular.getCuenta().agregarTransaccion(ret);
-            imprimirEstadoValidacion(true, ret);
-            return ret;
-        } else {
+        if (titular == null) {
             imprimirEstadoValidacion(false, null);
-            return null;
+            return false;
         }
+
+        Cuenta cuenta = titular.getCuenta();
+
+        // 3. Verificar saldo suficiente
+        if (cuenta.getSaldo() < monto) {
+            System.out.println("Saldo insuficiente");
+            return false;
+        }
+
+        // 4. Aplicar retiro en memoria
+        cuenta.setSaldo(cuenta.getSaldo() - monto);
+
+        // 5. Actualizar saldo en SQL
+        CuentaDAO.actualizarSaldo(codigoCuenta, cuenta.getSaldo());
+
+        // 6. Registrar transacción en SQL
+        String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
+        TransaccionDAO.insertarTransaccion(codigoCuenta, null, codigoEmp, monto, "retiro");
+
+        imprimirEstadoValidacion(true, null);
+        return true;
     }
 
     public Transferencia transferir(String codigoClienteOrigen, String codigoCuentaOrigen, 
@@ -216,10 +265,21 @@ public class Banco {
         Cuenta destino = buscarCuenta(codigoCuentaDestino);
 
         if(titular != null && destino != null) {
+            Cuenta origen = titular.getCuenta();
+            
+            // Crear y procesar la transferencia
             Transferencia trans = new Transferencia(empleado, destino, monto, ID);
-            trans.procesar(titular.getCuenta());
-            titular.getCuenta().agregarTransaccion(trans);
-            destino.agregarTransaccion(trans);
+            trans.procesar(origen);
+            
+            // Actualizar saldos en la BD
+            CuentaDAO.actualizarSaldo(codigoCuentaOrigen, origen.getSaldo());
+            CuentaDAO.actualizarSaldo(codigoCuentaDestino, destino.getSaldo());
+            
+            // Registrar transacción en la BD
+            String codigoEmp = empleado != null ? empleado.getCodigoEmpleado() : null;
+            TransaccionDAO.insertarTransaccion(codigoCuentaOrigen, codigoCuentaDestino, 
+                                              codigoEmp, monto, "transferencia");
+            
             imprimirEstadoValidacion(true, trans);
             return trans;
         } else {
@@ -265,70 +325,56 @@ public class Banco {
     /* === MÉTODOS PARA MOSTRAR LISTAS === */
     
     public void mostrarClientes() {
-        if (listaClientes.isEmpty()) {
+        List<Cliente> clientes = ClienteDAO.listarClientes();
+        if (clientes.isEmpty()) {
             System.out.println("No hay clientes registrados.");
             return;
         }
         System.out.println("\n=== LISTA DE CLIENTES ===");
-        for (Cliente c : listaClientes) {
-            c.mostrarDatos();
+        for (Cliente c : clientes) {
+            System.out.println(c);
             System.out.println("------------------------");
         }
     }
     
     public void mostrarEmpleados() {
-        if (listaEmpleados.isEmpty()) {
+        List<Empleado> empleados = EmpleadoDAO.listarEmpleados();
+        if (empleados.isEmpty()) {
             System.out.println("No hay empleados registrados.");
             return;
         }
+
         System.out.println("\n=== LISTA DE EMPLEADOS ===");
-        for (Empleado e : listaEmpleados) {
-            e.mostrarDatos();
-            System.out.println("------------------------");
+        for (Empleado emp : empleados) {
+            System.out.println(emp);
         }
     }
     
     public void mostrarCuentas() {
-        if (listaCuentas.isEmpty()) {
+        List<Cuenta> cuentas = CuentaDAO.listarCuentas();
+
+        if (cuentas.isEmpty()) {
             System.out.println("No hay cuentas registradas.");
             return;
         }
+
         System.out.println("\n=== LISTA DE CUENTAS ===");
-        for (Cuenta c : listaCuentas) {
-            c.mostrarDatos();
+        for (Cuenta c : cuentas) {
+            System.out.println(c);
         }
     }
-    
-    public void mostrarTitulares() {
-        if (listaTitular.isEmpty()) {
-            System.out.println("No hay titulares registrados.");
-            return;
-        }
-        System.out.println("\n=== LISTA DE TITULARES ===");
-        for (Titular t : listaTitular) {
-            t.mostrarDatos();
-            System.out.println("------------------------");
-        }
-    }
-    
-    public ArrayList<Cuenta> buscarCuentasDeCliente(String codigoCliente) {
-        ArrayList<Cuenta> cuentasCliente = new ArrayList<>();
-        
+
+   
+    public List<Cuenta> buscarCuentasDeCliente(String codigoCliente) {
         if (!Validaciones.validarTexto(codigoCliente)) {
-            return cuentasCliente;
+            return new ArrayList<>();
         }
-        
-        for (Titular t : listaTitular) {
-            if (t.getCliente().getCodigoCliente().equalsIgnoreCase(codigoCliente)) {
-                cuentasCliente.add(t.getCuenta());
-            }
-        }
-        
-        return cuentasCliente;
+        return CuentaDAO.buscarCuentasCliente(codigoCliente);
     }
+
     
     public void mostrarCuentasDeCliente(String codigoCliente) {
-        ArrayList<Cuenta> cuentas = buscarCuentasDeCliente(codigoCliente);
+        List<Cuenta> cuentas = buscarCuentasDeCliente(codigoCliente);
         
         if (cuentas.isEmpty()) {
             System.out.println("El cliente no tiene cuentas registradas.");
@@ -341,10 +387,20 @@ public class Banco {
         }
     }
 
-    /* === GETTERS === */
+    /* === MÉTODOS PARA OBTENER LISTAS DESDE LA BD === */
     
-    public ArrayList<Cliente> getListaClientes() {return listaClientes;}
-    public ArrayList<Empleado> getListaEmpleados() {return listaEmpleados;}
-    public ArrayList<Cuenta> getListaCuentas() {return listaCuentas;}
-    public ArrayList<Titular> getListaTitular() {return listaTitular;}
+    public List<Cliente> getListaClientes() {
+        return ClienteDAO.listarClientes();
+    }
+    
+    public List<Empleado> getListaEmpleados() {
+        return EmpleadoDAO.listarEmpleados();
+    }
+    public List<Cuenta> getListaCuentas() {
+        return CuentaDAO.listarCuentas();
+    }
+    
+    public ArrayList<Titular> getListaTitular() {
+        return titulares;
+    }
 }
