@@ -6,6 +6,9 @@ package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -139,19 +142,31 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
 
     private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
         // TODO add your handling code here:
-        String codCuenta = (String) comboBoxCuentas.getSelectedItem();
+    String codCuenta = (String) comboBoxCuentas.getSelectedItem();
         if (codCuenta == null || codCuenta.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "No hay cuentas disponibles.");
             return;
         }
 
-        // Buscar la cuenta directamente en SQL
-        Cuenta cuenta = CuentaDAO.obtenerCuenta(codCuenta);
+        // Abrir conexión
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                return;
+            }
 
-        if (cuenta != null) {
-            lblNumSaldo.setText("S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codCuenta)));
-        } else {
-            JOptionPane.showMessageDialog(this, "Cuenta no encontrada en la base de datos.");
+            // Buscar la cuenta directamente en SQL usando la conexión
+            Cuenta cuenta = CuentaDAO.obtenerCuenta(conn, codCuenta);
+
+            if (cuenta != null) {
+                lblNumSaldo.setText("S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(conn, codCuenta)));
+            } else {
+                JOptionPane.showMessageDialog(this, "Cuenta no encontrada en la base de datos.");
+                lblNumSaldo.setText("---");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar la cuenta: " + e.getMessage());
             lblNumSaldo.setText("---");
         }
     }//GEN-LAST:event_btnConsultarActionPerformed

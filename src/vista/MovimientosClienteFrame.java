@@ -7,6 +7,10 @@ import modelo.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import java.util.*;
+import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -151,7 +155,7 @@ public class MovimientosClienteFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+    // TODO add your handling code here:
         String codigoCuenta = (String) jComboBox1.getSelectedItem();
 
         if (codigoCuenta == null || codigoCuenta.isEmpty()) {
@@ -159,14 +163,25 @@ public class MovimientosClienteFrame extends javax.swing.JFrame {
             return;
         }
 
-        Cuenta cuentaEncontrada = banco.buscarCuenta(codigoCuenta);
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                return;
+            }
 
-        if (cuentaEncontrada != null) {
-            cargarTabla(cuentaEncontrada);
-        } else {
-            JOptionPane.showMessageDialog(this, "La cuenta " + codigoCuenta + " no existe.");
-            limpiarTabla();
-        }  
+            // Buscar la cuenta directamente desde SQL usando Connection
+            Cuenta cuentaEncontrada = CuentaDAO.obtenerCuenta(conn, codigoCuenta);
+
+            if (cuentaEncontrada != null) {
+                // Cargar la tabla con la cuenta encontrada
+                cargarTabla(cuentaEncontrada);
+            } else {
+                JOptionPane.showMessageDialog(this, "La cuenta " + codigoCuenta + " no existe.");
+                limpiarTabla();
+            }  
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar la cuenta: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**

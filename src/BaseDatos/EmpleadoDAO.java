@@ -44,8 +44,7 @@ public class EmpleadoDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
-                Empleado emp = new Empleado(
+                empleados.add(new Empleado(
                     rs.getString("nombre"),
                     rs.getString("apellido"),
                     rs.getString("telefono"),
@@ -54,9 +53,7 @@ public class EmpleadoDAO {
                     rs.getString("dni"),
                     rs.getString("direccion"),
                     rs.getString("codigoEmpleado")
-                );
-
-                empleados.add(emp);
+                ));
             }
 
         } catch (SQLException e) {
@@ -65,6 +62,8 @@ public class EmpleadoDAO {
 
         return empleados;
     }
+
+
 
 
     // 2️⃣b Leer / SELECT → buscar un empleado específico por código

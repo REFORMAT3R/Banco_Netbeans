@@ -6,6 +6,9 @@ package vista;
 import modelo.*; 
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -129,90 +132,97 @@ public class DepositoClienteFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        try {
-           // 1. Leer cuenta seleccionada
-           String codigoCuenta = (String) jComboBox1.getSelectedItem();
-           if (codigoCuenta == null || codigoCuenta.trim().isEmpty()) { 
-               JOptionPane.showMessageDialog(this, "Seleccione una cuenta", "Error", JOptionPane.WARNING_MESSAGE);
-               return;
-           }
+     try {
+        // 1. Leer cuenta seleccionada
+        String codigoCuenta = (String) jComboBox1.getSelectedItem();
+        if (codigoCuenta == null || codigoCuenta.trim().isEmpty()) { 
+            JOptionPane.showMessageDialog(this, "Seleccione una cuenta", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-           // 2. Leer monto
-           String montoTexto = txtMonto.getText().trim();
-           if (montoTexto.isEmpty()) {
-               JOptionPane.showMessageDialog(this, "Ingrese un monto", "Error", JOptionPane.WARNING_MESSAGE);
-               return;
-           }
+        // 2. Leer monto
+        String montoTexto = txtMonto.getText().trim();
+        if (montoTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un monto", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-           double monto = Double.parseDouble(montoTexto);
+        double monto = Double.parseDouble(montoTexto);
 
-           if (monto <= 0) {
-               JOptionPane.showMessageDialog(this, "El monto debe ser mayor a 0", "Error", JOptionPane.WARNING_MESSAGE);
-               return;
-           }
+        if (monto <= 0) {
+            JOptionPane.showMessageDialog(this, "El monto debe ser mayor a 0", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-           // 3. Obtener cliente logueado
-           Cliente cliente = ((UsuarioCliente) usuario).getCliente();
-           String codCliente = cliente.getCodigoCliente();
+        // 3. Obtener cliente logueado
+        Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+        String codCliente = cliente.getCodigoCliente();
 
-           // 4. Verificar si la cuenta pertenece al cliente
-           String dueñoBD = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
+        // 4. Abrir conexión
+            try (Connection conn = Conexion.conectar()) {
+                if (conn == null) {
+                    JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                    return;
+                }
 
-           if (dueñoBD == null) {
-               JOptionPane.showMessageDialog(this, 
-                   "La cuenta no existe en la base de datos.", 
-                   "Error", 
-                   JOptionPane.ERROR_MESSAGE);
-               return;
-           }
+                // 5. Verificar si la cuenta pertenece al cliente usando la conexión
+                String dueñoBD = CuentaDAO.obtenerCodigoClientePorCuenta(conn, codigoCuenta);
 
-           if (!dueñoBD.equals(codCliente)) {
-               JOptionPane.showMessageDialog(this, 
-                   "La cuenta no pertenece al cliente.", 
-                   "Error", 
-                   JOptionPane.ERROR_MESSAGE);
-               return;
-           }
+                if (dueñoBD == null) {
+                    JOptionPane.showMessageDialog(this, 
+                        "La cuenta no existe en la base de datos.", 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-           // 5. Registrar la transacción (depósito)
-           boolean exito = banco.depositar(
-                   codCliente,
-                   codigoCuenta,
-                   monto,
-                   null,   // no hay empleado
-                   null    // ID lo genera la BD
-           );
+                if (!dueñoBD.equals(codCliente)) {
+                    JOptionPane.showMessageDialog(this, 
+                        "La cuenta no pertenece al cliente.", 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-           if (!exito) {
-               JOptionPane.showMessageDialog(this, 
-                   "Error al realizar el depósito. Intente nuevamente.",
-                   "Error",
-                   JOptionPane.ERROR_MESSAGE);
-               return;
-           }
+                // 6. Registrar la transacción (depósito)
+                boolean exito = banco.depositar(
+                        codCliente,
+                        codigoCuenta,
+                        monto,
+                        null,   // no hay empleado
+                        null    // ID lo genera la BD
+                );
 
-            // 6. Obtener saldo actual desde SQL     
+                if (!exito) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Error al realizar el depósito. Intente nuevamente.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-           // 8. Mensaje (sin mostrar saldo)
+                // 7. Mensaje (sin mostrar saldo)
+                JOptionPane.showMessageDialog(this, 
+                   "¡Depósito realizado con éxito!\n" +
+                   "Monto depositado: S/. " + String.format("%.2f", monto),
+                   "Éxito",
+                   JOptionPane.INFORMATION_MESSAGE);
+
+                txtMonto.setText("");
+
+            } // la conexión se cierra automáticamente al salir del try-with-resources
+
+        } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, 
-               "¡Depósito realizado con éxito!\n" +
-               "Monto depositado: S/. " + String.format("%.2f", monto),
-               "Éxito",
-               JOptionPane.INFORMATION_MESSAGE);
-
-            txtMonto.setText("");
-
-       } catch (NumberFormatException e) {
-           JOptionPane.showMessageDialog(this, 
-               "Ingrese un monto válido (solo números).",
-               "Error de Formato",
-               JOptionPane.ERROR_MESSAGE);
-       } catch (Exception e) {
-           JOptionPane.showMessageDialog(this, 
-               "Error inesperado: " + e.getMessage(),
-               "Error",
-               JOptionPane.ERROR_MESSAGE);
-       }
+                "Ingrese un monto válido (solo números).",
+                "Error de Formato",
+                JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error inesperado: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

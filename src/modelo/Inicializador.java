@@ -1,5 +1,6 @@
 package modelo;
 
+import BaseDatos.*;
 public class Inicializador {
     
     public static void cargarDatosIniciales(Banco banco, GestorUsuarios gestorUsuarios) {
@@ -36,36 +37,26 @@ public class Inicializador {
         
         // --- Cliente 1: Maria (CTA001) ---
         Cliente cli1 = new Cliente("Maria", "Lopez Ludeña", "912345678", "maria@mail.com", 
-                                    28, "20000001", "Jr. Flores 456", "CLI001");
+                            28, "20000001", "Jr. Flores 456", "CLI001");
         banco.registrarCliente(cli1);
         gestorUsuarios.crearUsuarioCliente("maria", "maria123", cli1);
-        
-        banco.crearCuenta("CTA00000001", cli1);
-        if(banco.buscarCuenta("CTA00000001") != null) 
-            banco.buscarCuenta("CTA00000001").setSaldo(1500.00); 
-        banco.crearCuenta("CTA00000004", cli1);
-        if(banco.buscarCuenta("CTA00000004") != null) 
-            banco.buscarCuenta("CTA00000004").setSaldo(1000.00);
 
-        // --- Cliente 2: Carlos (CTA002) ---
+        CuentaDAO.insertarCuenta("CTA00000001", cli1.getCodigoCliente());
+        CuentaDAO.insertarCuenta("CTA00000004", cli1.getCodigoCliente());
+
         Cliente cli2 = new Cliente("Carlos", "Ruiz Motta", "922334455", "carlos@mail.com", 
                                     35, "20000002", "Av. Arequipa 880", "CLI002");
         banco.registrarCliente(cli2);
         gestorUsuarios.crearUsuarioCliente("carlos", "carlos123", cli2);
-        
-        banco.crearCuenta("CTA00000002", cli2);
-        if(banco.buscarCuenta("CTA00000002") != null) 
-            banco.buscarCuenta("CTA00000002").setSaldo(5000.50);
 
-        // --- Cliente 3: Elena (CTA003) ---
+        CuentaDAO.insertarCuenta("CTA00000002", cli2.getCodigoCliente());
+
         Cliente cli3 = new Cliente("Elena", "Diaz Yucra", "933445566", "elena@mail.com", 
                                     42, "20000003", "Calle Lima 202", "CLI003");
         banco.registrarCliente(cli3);
         gestorUsuarios.crearUsuarioCliente("elena", "elena123", cli3);
-        
-        banco.crearCuenta("CTA00000003", cli3);
-        if(banco.buscarCuenta("CTA00000003") != null) 
-            banco.buscarCuenta("CTA00000003").setSaldo(300.00);
+
+        CuentaDAO.insertarCuenta("CTA00000003", cli3.getCodigoCliente());
 
 
         // ==========================================

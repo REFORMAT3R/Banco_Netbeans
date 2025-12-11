@@ -47,13 +47,12 @@ public class CuentaDAO {
     }
 
     // 2️⃣b Leer / SELECT → buscar una cuenta específica
-    public static Cuenta obtenerCuenta(String codigoCuenta) {
+    public static Cuenta obtenerCuenta(Connection conn, String codigoCuenta) {
         String sql = "SELECT codigoCuenta FROM cuenta WHERE codigoCuenta = ?";
 
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, codigoCuenta);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new Cuenta(rs.getString("codigoCuenta"));
@@ -64,6 +63,7 @@ public class CuentaDAO {
         }
         return null;
     }
+
     
         public static List<Cuenta> buscarCuentasCliente(String codigoCliente) {
             List<Cuenta> cuentas = new ArrayList<>();
@@ -89,36 +89,42 @@ public class CuentaDAO {
             return cuentas;
         }
 
-        public static String obtenerCodigoClientePorCuenta(String codigoCuenta) {
-        String sql = "SELECT codigoCliente FROM cuenta WHERE codigoCuenta = ?";
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        public static String obtenerCodigoClientePorCuenta(Connection conn, String codigoCuenta) {
+            String sql = "SELECT codigoCliente FROM cuenta WHERE codigoCuenta = ?";
 
-            ps.setString(1, codigoCuenta);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, codigoCuenta);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("codigoCliente");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("codigoCliente");
+                    }
                 }
+
+            } catch (SQLException e) {
+                System.out.println("Error al obtener cliente de la cuenta: " + e.getMessage());
             }
 
-        } catch (SQLException e) {
-            System.out.println("Error al obtener cliente de la cuenta: " + e.getMessage());
+            return null;
         }
-        return null;
-    }
 
-    public static Double obtenerSaldo(String codigoCuenta) {
+    public static Double obtenerSaldo(Connection conn, String codigoCuenta) {
         String sql = "SELECT saldo FROM cuenta WHERE codigoCuenta = ?";
 
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
+        try {
+            // 1. Preparar la consulta usando la conexión pasada
+            ps = conn.prepareStatement(sql);
             ps.setString(1, codigoCuenta);
-            ResultSet rs = ps.executeQuery();
 
+            // 2. Ejecutar consulta
+            rs = ps.executeQuery();
+
+            // 3. Leer resultado
             if (rs.next()) {
-                return rs.getDouble("saldo"); // devuelve el saldo
+                return rs.getDouble("saldo");
             } else {
                 return null; // cuenta no encontrada
             }
@@ -126,26 +132,43 @@ public class CuentaDAO {
         } catch (SQLException e) {
             System.out.println("Error al obtener saldo: " + e.getMessage());
             return null;
+        } finally {
+            // 4. Cerrar recursos de la consulta
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                // NOTA: no cerramos conn, porque la controla quien llama
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar recursos: " + e.getMessage());
+            }
         }
     }
 
+
+
         
     // 3️⃣ Actualizar saldo
-    public static boolean actualizarSaldo(String codigoCuenta, double nuevoSaldo) {
+    public static boolean actualizarSaldo(Connection conn, String codigoCuenta, double nuevoSaldo) {
         String sql = "UPDATE cuenta SET saldo = ? WHERE codigoCuenta = ?";
 
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(sql);
             ps.setDouble(1, nuevoSaldo);
             ps.setString(2, codigoCuenta);
 
-            ps.executeUpdate();
-            return true;
+            int filasActualizadas = ps.executeUpdate();
+            return filasActualizadas > 0;
 
         } catch (SQLException e) {
             System.out.println("Error al actualizar saldo: " + e.getMessage());
             return false;
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.out.println("Error cerrando PreparedStatement: " + e.getMessage());
+            }
         }
     }
 

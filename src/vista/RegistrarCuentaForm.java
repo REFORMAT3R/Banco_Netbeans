@@ -6,6 +6,9 @@ package vista;
 import modelo.*; // Importar las clases lógicas
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author LENOVO
@@ -148,66 +151,67 @@ public class RegistrarCuentaForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // 1. OBTENER DATOS
-       String codCuenta = jTextField1.getText().trim();
-       String dniCliente = jTextField2.getText().trim();
-       String saldoStr = jTextField3.getText().trim();
+        String codCuenta = jTextField1.getText().trim();
+        String codigoCliente = jTextField2.getText().trim(); // ahora pedimos código del cliente
+        String saldoStr = jTextField3.getText().trim();
 
-       // 2. VALIDACIONES
-       if (!Validaciones.validarTexto(codCuenta) || !Validaciones.validarTexto(dniCliente)) {
+        // 2. VALIDACIONES
+        if (!Validaciones.validarTexto(codCuenta) || !Validaciones.validarTexto(codigoCliente)) {
             JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios.");
             return;
-       }
-       if (!Validaciones.validarCodigoCuenta(codCuenta)) {
+        }
+        if (!Validaciones.validarCodigoCuenta(codCuenta)) {
             JOptionPane.showMessageDialog(this, "Código de Cuenta inválido.\n" + Validaciones.obtenerMensajeError("codigo_cuenta"));
             return;
-       }
-       if (!Validaciones.validarDNI(dniCliente)) {
-            JOptionPane.showMessageDialog(this, "DNI inválido.\n" + Validaciones.obtenerMensajeError("dni"));
-            return;
-       }
+        }
 
-       // 3. LÓGICA SQL
-       try {
-           // A) Buscar cliente en SQL por DNI
-           Cliente dueno = ClienteDAO.obtenerCliente(dniCliente);
-           if (dueno == null) {
-               JOptionPane.showMessageDialog(this, "No se encontró ningún cliente con el DNI: " + dniCliente);
-               return;
-           }
+        // 3. LÓGICA SQL CON CONNECTION
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                return;
+            }
 
-           // B) Verificar si ya existe la cuenta en SQL
-           if (CuentaDAO.obtenerCuenta(codCuenta) != null) {
-               JOptionPane.showMessageDialog(this, "Error: Ya existe una cuenta con ese código.");
-               return;
-           }
+            // A) Buscar cliente en SQL por código
+            Cliente dueno = ClienteDAO.obtenerCliente(codigoCliente);
+            if (dueno == null) {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún cliente con el código: " + codigoCliente);
+                return;
+            }
 
-           // C) Crear la cuenta en SQL
-           double saldoInicial = 0;
-           if (!saldoStr.isEmpty()) {
-               try {
-                   saldoInicial = Double.parseDouble(saldoStr);
-                   if (saldoInicial < 0) {
-                       JOptionPane.showMessageDialog(this, "El saldo inicial no puede ser negativo.");
-                       return;
-                   }
-               } catch (NumberFormatException e) {
-                   JOptionPane.showMessageDialog(this, "El saldo debe ser un número válido.");
-                   return;
-               }
-           }
+            // B) Verificar si ya existe la cuenta en SQL
+            if (CuentaDAO.obtenerCuenta(conn, codCuenta) != null) {
+                JOptionPane.showMessageDialog(this, "Error: Ya existe una cuenta con ese código.");
+                return;
+            }
 
-           boolean exito = CuentaDAO.insertarCuenta(codCuenta, dueno.getCodigoCliente());
+            // C) Crear la cuenta en SQL
+            double saldoInicial = 0;
+            if (!saldoStr.isEmpty()) {
+                try {
+                    saldoInicial = Double.parseDouble(saldoStr);
+                    if (saldoInicial < 0) {
+                        JOptionPane.showMessageDialog(this, "El saldo inicial no puede ser negativo.");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "El saldo debe ser un número válido.");
+                    return;
+                }
+            }
 
-           if (exito) {
-               JOptionPane.showMessageDialog(this, "¡Cuenta creada exitosamente para " + dueno.getNombre() + "!");
-               this.dispose();
-           } else {
-               JOptionPane.showMessageDialog(this, "Ocurrió un error al crear la cuenta. Intente nuevamente.");
-           }
+            boolean exito = CuentaDAO.insertarCuenta(codCuenta, dueno.getCodigoCliente());
 
-       } catch (Exception e) {
+            if (exito) {
+                JOptionPane.showMessageDialog(this, "¡Cuenta creada exitosamente para " + dueno.getNombre() + "!");
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Ocurrió un error al crear la cuenta. Intente nuevamente.");
+            }
+
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage());
-       }
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

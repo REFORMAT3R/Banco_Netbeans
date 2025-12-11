@@ -8,18 +8,18 @@ import modelo.*;
 public class TransaccionDAO {
 
     // 1️⃣ Crear / INSERT
-    public static boolean insertarTransaccion(String codigoCuenta, String codigoCuentaDestino,
+    public static boolean insertarTransaccion(Connection conn, String codigoCuenta, String codigoCuentaDestino,
                                               String codigoEmpleado, double monto, String tipo) {
-        String sql = "INSERT INTO transaccion(codigoCuenta, codigoCuentaDestino, codigoEmpleado, monto, tipo) " +
-                     "VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "INSERT INTO transaccion(codigoCuenta, codigoCuentaDestino, codigoEmpleado, monto, tipo) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement ps = null;
 
+        try {
+            ps = conn.prepareStatement(sql);
             ps.setString(1, codigoCuenta);
             ps.setString(2, codigoCuentaDestino); // puede ser null si es solo cliente
-            ps.setString(3, codigoEmpleado); // puede ser null si es solo cliente
+            ps.setString(3, codigoEmpleado);     // puede ser null si es solo cliente
             ps.setDouble(4, monto);
-            ps.setString(5, tipo); // "retiro", "deposito", "transferencia"
+            ps.setString(5, tipo);               // "retiro", "deposito", "transferencia"
 
             ps.executeUpdate();
             return true;
@@ -27,8 +27,16 @@ public class TransaccionDAO {
         } catch (SQLException e) {
             System.out.println("Error al insertar transacción: " + e.getMessage());
             return false;
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                // no cerramos la conexión aquí, porque la maneja quien llama
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar PreparedStatement: " + e.getMessage());
+            }
         }
     }
+
 
     // 2️⃣ Leer / SELECT → listar todas las transacciones
     public static List<TransaccionSQL> listarTransacciones() {

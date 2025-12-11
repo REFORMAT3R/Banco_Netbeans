@@ -6,6 +6,9 @@ package vista;
 import modelo.*; 
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -123,8 +126,14 @@ public class RetiroFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_txtMontoActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    try {
+        // TODO add your handling code here:    try (Connection conn = Conexion.conectar()) {
+        try (Connection conn = Conexion.conectar()) {
+
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                return;
+            }
+
             String codigoCuenta = txtCuenta.getText().trim();
             String montoTxt = txtMonto.getText().trim();
 
@@ -139,15 +148,15 @@ public class RetiroFrame extends javax.swing.JFrame {
 
             double monto = Double.parseDouble(montoTxt);
 
-            // 1. Validar que la cuenta exista (usando la lógica del banco, igual que en depósito)
-            Cuenta cta = CuentaDAO.obtenerCuenta(codigoCuenta);
+            // 1. Validar que la cuenta exista
+            Cuenta cta = CuentaDAO.obtenerCuenta(conn, codigoCuenta);
             if (cta == null) {
                 JOptionPane.showMessageDialog(this, "La cuenta no existe.");
                 return;
             }
 
             // 2. Obtener desde SQL el cliente dueño de la cuenta
-            String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
+            String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(conn, codigoCuenta);
             if (codigoCliente == null) {
                 JOptionPane.showMessageDialog(this,
                     "No se pudo obtener el dueño de la cuenta (Base de Datos).",
@@ -156,15 +165,15 @@ public class RetiroFrame extends javax.swing.JFrame {
             }
 
             // 3. Obtener empleado logueado
-            Empleado emp = ((UsuarioEmpleado) usuario).getEmpleado();
+            Empleado emp = ((UsuarioEmpleado) usuario).getEmpleado(); // o null si no aplica
 
-            // 4. Realizar RETIRO (SQL incluido)
-            boolean ok = banco.retirar(
+            // 4. Realizar RETIRO (SQL incluido), pasando la conexión
+            boolean ok = banco.retirar(conn,
                     codigoCliente,  // dueño obtenido desde SQL
                     codigoCuenta,
                     monto,
-                    null,
-                    "IGNORAR"       // NO USAMOS ESTE ID, la BD genera el idTransaccion
+                    null,           // sin empleado
+                    "IGNORAR"       // ID generado por BD
             );
 
             if (!ok) {
@@ -174,13 +183,13 @@ public class RetiroFrame extends javax.swing.JFrame {
                 return;
             }
 
-            // 5. Obtener saldo actualizado
-
+            // 5. Obtener saldo actualizado desde SQL usando la misma conexión
+            double saldoActual = CuentaDAO.obtenerSaldo(conn, codigoCuenta);
 
             JOptionPane.showMessageDialog(this,
                     "Retiro realizado con éxito.\n" +
                     "Monto: S/. " + String.format("%.2f", monto) + "\n" +
-                    "Nuevo saldo: S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codigoCuenta)),
+                    "Nuevo saldo: S/. " + String.format("%.2f", saldoActual),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
             txtMonto.setText("");

@@ -6,6 +6,9 @@ package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -84,15 +87,15 @@ public class ConsultaSaldoFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String codCuenta = txtCuenta.getText().trim();
-        
+       String codCuenta = txtCuenta.getText().trim();
+    
         // Validar que no esté vacío
         if (codCuenta.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese un número de cuenta.");
             lblSaldo.setText("---");
             return;
         }
-        
+
         // Validar formato del código de cuenta
         if (!Validaciones.validarCodigoCuenta(codCuenta)) {
             JOptionPane.showMessageDialog(this, 
@@ -103,25 +106,39 @@ public class ConsultaSaldoFrame extends javax.swing.JFrame {
             return;
         }
 
-        // Buscar la cuenta en la base de datos
-        Cuenta cuenta = banco.buscarCuenta(codCuenta);
+        // Abrir conexión
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                lblSaldo.setText("---");
+                return;
+            }
 
-        if (cuenta != null) {
-            // Mostrar el saldo actualizado desde la BD
-            double saldo = CuentaDAO.obtenerSaldo(codCuenta);
-            lblSaldo.setText("S/. " + String.format("%.2f", saldo));
-            
-            // Log de consulta exitosa
-            logger.info("Consulta de saldo exitosa para cuenta: " + codCuenta);
-        } else {
-            JOptionPane.showMessageDialog(this, 
-                "Cuenta no encontrada en la base de datos.",
-                "Cuenta No Encontrada",
-                JOptionPane.ERROR_MESSAGE);
+            // Buscar la cuenta en la base de datos usando la conexión
+            Cuenta cuenta = CuentaDAO.obtenerCuenta(conn, codCuenta);
+
+            if (cuenta != null) {
+                // Mostrar el saldo actualizado desde la BD
+                double saldo = CuentaDAO.obtenerSaldo(conn, codCuenta);
+                lblSaldo.setText("S/. " + String.format("%.2f", saldo));
+
+                // Log de consulta exitosa
+                logger.info("Consulta de saldo exitosa para cuenta: " + codCuenta);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Cuenta no encontrada en la base de datos.",
+                    "Cuenta No Encontrada",
+                    JOptionPane.ERROR_MESSAGE);
+                lblSaldo.setText("---");
+
+                // Log de cuenta no encontrada
+                logger.warning("Intento de consulta para cuenta inexistente: " + codCuenta);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar la cuenta: " + e.getMessage());
             lblSaldo.setText("---");
-            
-            // Log de cuenta no encontrada
-            logger.warning("Intento de consulta para cuenta inexistente: " + codCuenta);
+            logger.severe("Error SQL al consultar saldo: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

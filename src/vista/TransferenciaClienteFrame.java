@@ -3,9 +3,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package vista;
+
+
 import modelo.*; 
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
+import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -14,7 +20,7 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TransferenciaClienteFrame.class.getName());
     private Banco banco;
-    private UsuarioCliente usuarioCliente;
+    private UsuarioCliente usuario;
     // Lista auxiliar para guardar las cuentas reales y no solo el texto del combo
     private ArrayList<Cuenta> misCuentas;
     /**
@@ -26,7 +32,7 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
         
         // Validamos que sea un cliente (por seguridad)
         if (usuario instanceof UsuarioCliente) {
-            this.usuarioCliente = (UsuarioCliente) usuario;
+            this.usuario = (UsuarioCliente) usuario;
         }
         
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -36,24 +42,21 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
         cargarCuentasEnCombo();
     }
     private void cargarCuentasEnCombo() {
-        cmbCuentasOrigen.removeAllItems(); // Limpiar
-        
-        // 1. Obtener el código del cliente logueado
-        String codigoCliente = usuarioCliente.getCliente().getCodigoCliente();
-        
-        // 2. Buscar sus cuentas en el banco
-        misCuentas = banco.buscarCuentasDeCliente(codigoCliente);
-        
-        // 3. Llenar el combo visualmente
-        if (misCuentas.isEmpty()) {
-            cmbCuentasOrigen.addItem("No tienes cuentas registradas");
-            btnTransferir.setEnabled(false);
-        } else {
-            for (Cuenta c : misCuentas) {
-                // Mostramos Código y Saldo para ayudar al usuario
-                cmbCuentasOrigen.addItem(c.getCodigoCuenta() + " (Saldo: S/." + c.getSaldo() + ")");
+    if (usuario instanceof UsuarioCliente) {
+                Cliente cliente = ((UsuarioCliente) usuario).getCliente();
+                cmbCuentasOrigen.removeAllItems();
+
+                // Obtener cuentas del cliente desde la BD
+                java.util.List<Cuenta> cuentasCliente = banco.buscarCuentasDeCliente(cliente.getCodigoCliente());
+
+                if (cuentasCliente.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No tienes cuentas registradas.");
+                } else {
+                    for (Cuenta cuenta : cuentasCliente) {
+                        cmbCuentasOrigen.addItem(cuenta.getCodigoCuenta());
+                    }
+                }
             }
-        }
     }
 
     /**
@@ -128,74 +131,88 @@ public class TransferenciaClienteFrame extends javax.swing.JFrame {
 
     private void btnTransferirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransferirActionPerformed
         // TODO add your handling code here:
+   
         try {
-            // 1. Validar selección de cuenta origen
-            int indiceSeleccionado = cmbCuentasOrigen.getSelectedIndex();
-            if (indiceSeleccionado < 0 || misCuentas.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor selecciona una cuenta de origen.");
-                return;
-            }
-            
-            // Obtenemos el objeto Cuenta real usando la lista auxiliar y el índice
-            Cuenta cuentaOrigen = misCuentas.get(indiceSeleccionado);
-            
-            // 2. Obtener y Validar datos de destino
-            String ctaDestino = txtDestino.getText().trim();
-            String montoStr = txtMonto.getText().trim();
-            
-            if (ctaDestino.isEmpty() || montoStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Complete todos los campos.");
-                return;
-            }
-            
-            // Validar que no se transfiera a sí mismo (misma cuenta)
-            if (cuentaOrigen.getCodigoCuenta().equalsIgnoreCase(ctaDestino)) {
-                JOptionPane.showMessageDialog(this, "No puedes transferir a la misma cuenta de origen.");
+            // 1. Obtener cuenta origen del combo
+            String codigoCuentaOrigen = (String) cmbCuentasOrigen.getSelectedItem();
+            if (codigoCuentaOrigen == null || codigoCuentaOrigen.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Seleccione una cuenta de origen.");
                 return;
             }
 
-            // 3. Validar Monto y Saldo
+            // 2. Obtener datos de destino
+            String codigoCuentaDestino = txtDestino.getText().trim();
+            String montoStr = txtMonto.getText().trim();
+
+            if (codigoCuentaDestino.isEmpty() || montoStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Complete todos los campos.");
+                return;
+            }
+
+            // Validar monto
             double monto = Double.parseDouble(montoStr);
             if (monto <= 0) {
                 JOptionPane.showMessageDialog(this, "El monto debe ser mayor a 0.");
                 return;
             }
-            
-            // VERIFICACIÓN DE SALDO (Lo que pediste)
-            if (cuentaOrigen.getSaldo() < monto) {
-                JOptionPane.showMessageDialog(this, "Saldo insuficiente.\n" +
-                        "Tu saldo actual es: S/." + cuentaOrigen.getSaldo());
+
+            // 3. Obtener saldo actual de la cuenta origen
+            double saldoOrigen = CuentaDAO.obtenerSaldo(null,codigoCuentaOrigen);
+            if (saldoOrigen < monto) {
+                JOptionPane.showMessageDialog(this, "Saldo insuficiente.\nSaldo actual: S/." + saldoOrigen);
                 return;
             }
 
-            // 4. Ejecutar Transferencia en el Banco
-            String idTxn = "TXN" + System.currentTimeMillis();
-            String codCliente = usuarioCliente.getCliente().getCodigoCliente();
-            
-            // Llamamos al método transferir del Banco
-            // Nota: Pasamos 'null' en empleado porque lo hace el cliente directo
-            Transaccion resultado = banco.transferir(codCliente, cuentaOrigen.getCodigoCuenta(), ctaDestino, monto, null, idTxn);
-            
-            if (resultado != null) {
-                JOptionPane.showMessageDialog(this, "¡Transferencia Exitosa!\n" +
-                        "Nuevo Saldo: S/." + cuentaOrigen.getSaldo());
-                
-                // Actualizar el combo para reflejar el nuevo saldo
-                cargarCuentasEnCombo();
-                // Seleccionar de nuevo la cuenta que se usó
-                cmbCuentasOrigen.setSelectedIndex(indiceSeleccionado);
-                
-                // Limpiar campos
+            // 4. Abrir conexión y desactivar auto-commit para la transacción
+            Connection conn = Conexion.conectar();
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "No se pudo conectar a la base de datos.");
+                return;
+            }
+            conn.setAutoCommit(false);
+
+            try {
+                // 5. Actualizar saldos en SQL
+                boolean okOrigen = CuentaDAO.actualizarSaldo(conn, codigoCuentaOrigen, saldoOrigen - monto);
+                double saldoDestino = CuentaDAO.obtenerSaldo(conn, codigoCuentaDestino);
+                boolean okDestino = CuentaDAO.actualizarSaldo(conn, codigoCuentaDestino, saldoDestino + monto);
+
+                if (!okOrigen || !okDestino) {
+                    conn.rollback();
+                    JOptionPane.showMessageDialog(this, "Error al actualizar saldos. Transacción cancelada.");
+                    return;
+                }
+
+                // 6. Registrar transacción en SQL
+                boolean tx = TransaccionDAO.insertarTransaccion(conn, codigoCuentaOrigen, codigoCuentaDestino, null, monto, "transferencia");
+                if (!tx) {
+                    conn.rollback();
+                    JOptionPane.showMessageDialog(this, "Error al registrar la transacción. Transacción cancelada.");
+                    return;
+                }
+
+                // 7. Confirmar todo
+                conn.commit();
+                JOptionPane.showMessageDialog(this, "¡Transferencia exitosa!");
+
+                // 8. Limpiar campos
                 txtDestino.setText("");
                 txtMonto.setText("");
-            } else {
-                JOptionPane.showMessageDialog(this, "Error: Verifique que la cuenta destino exista.");
+
+            } catch (SQLException ex) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(this, "Error en la transferencia: " + ex.getMessage());
+            } finally {
+                conn.setAutoCommit(true);
+                conn.close();
             }
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Ingrese un monto válido.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error de base de datos: " + e.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Ocurrió un error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
         }
     }//GEN-LAST:event_btnTransferirActionPerformed
 

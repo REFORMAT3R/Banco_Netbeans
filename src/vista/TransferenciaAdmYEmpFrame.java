@@ -5,6 +5,10 @@
 package vista;
 import modelo.*; // Importamos la lógica del negocio
 import javax.swing.JOptionPane;
+import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -99,71 +103,84 @@ public class TransferenciaAdmYEmpFrame extends javax.swing.JFrame {
 
     private void btnTransferirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransferirActionPerformed
         // TODO add your handling code here:
-        try {
-            // 1. Obtener datos
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "No se pudo conectar a la base de datos.");
+                return;
+            }
+
+            conn.setAutoCommit(false); // inicio de transacción
+
+            // 1. Leer datos
             String ctaOrigen = txtOrigen.getText().trim();
             String ctaDestino = txtDestino.getText().trim();
             String montoStr = txtMonto.getText().trim();
-            
-            // 2. Validaciones básicas de campos vacíos
+
             if(ctaOrigen.isEmpty() || ctaDestino.isEmpty() || montoStr.isEmpty()){
-                JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.");
+                JOptionPane.showMessageDialog(this, "Complete todos los campos.");
                 return;
             }
-            
-            // 3. Validar que las cuentas sean diferentes (Validaciones.java lo hace, pero aquí es bueno avisar rápido)
+
             if(ctaOrigen.equals(ctaDestino)){
                 JOptionPane.showMessageDialog(this, "La cuenta de origen y destino no pueden ser la misma.");
                 return;
             }
 
             double monto = Double.parseDouble(montoStr);
-            String idTxn = "TXN" + System.currentTimeMillis();
 
-            // 4. BUSCAR EL CLIENTE DUEÑO DE LA CUENTA ORIGEN
-            // El método banco.transferir() pide el código del cliente origen.
-            // Como el empleado solo escribió la cuenta, debemos buscar de quién es.
-            String codClienteOrigen = "";
-            
-            for(Titular t : banco.getListaTitular()){
-                if(t.getCuenta().getCodigoCuenta().equals(ctaOrigen)){
-                    codClienteOrigen = t.getCliente().getCodigoCliente();
-                    break;
-                }
-            }
-            
-            if(codClienteOrigen.isEmpty()){
-                JOptionPane.showMessageDialog(this, "La cuenta de origen no existe o no tiene titular asignado.");
+            // 2. Obtener código del cliente usando la misma conexión
+            String codCliente = CuentaDAO.obtenerCodigoClientePorCuenta(conn, ctaOrigen);
+            if(codCliente == null){
+                JOptionPane.showMessageDialog(this, "La cuenta origen no existe o no tiene cliente asignado.");
                 return;
             }
 
-            // 5. Identificar al Empleado que realiza la operación
-            Empleado empResponsable = null;
-            if (usuario instanceof UsuarioEmpleado) {
-                empResponsable = ((UsuarioEmpleado) usuario).getEmpleado();
-            } 
-            // Si es admin, también podría tener un empleado asociado, o se pasa null si la lógica lo permite.
-            else if (usuario instanceof UsuarioAdministrador) {
-                empResponsable = ((UsuarioAdministrador) usuario).getAdministrador();
-            }
+            try {
+                // 3. Obtener saldos
+                Double saldoOrigen = CuentaDAO.obtenerSaldo(conn, ctaOrigen);
+                if(saldoOrigen == null){
+                    JOptionPane.showMessageDialog(this, "No se pudo obtener el saldo de la cuenta origen.");
+                    conn.rollback();
+                    return;
+                }
 
-            // 6. EJECUTAR TRANSFERENCIA
-            // Usamos el método transferir de la clase Banco
-            Transaccion resultado = banco.transferir(codClienteOrigen, ctaOrigen, ctaDestino, monto, empResponsable, idTxn);
-            
-            if (resultado != null) {
+                Double saldoDestino = CuentaDAO.obtenerSaldo(conn, ctaDestino);
+                if(saldoDestino == null){
+                    JOptionPane.showMessageDialog(this, "La cuenta destino no existe.");
+                    conn.rollback();
+                    return;
+                }
+
+                if(saldoOrigen < monto){
+                    JOptionPane.showMessageDialog(this, "Saldo insuficiente en la cuenta origen.");
+                    conn.rollback();
+                    return;
+                }
+
+                // 4. Actualizar saldos
+                CuentaDAO.actualizarSaldo(conn, ctaOrigen, saldoOrigen - monto);
+                CuentaDAO.actualizarSaldo(conn, ctaDestino, saldoDestino + monto);
+
+                // 5. Registrar transacción
+                TransaccionDAO.insertarTransaccion(conn, ctaOrigen, ctaDestino, null, monto, "transferencia");
+
+                // 6. Commit
+                conn.commit();
                 JOptionPane.showMessageDialog(this, "¡Transferencia realizada con éxito!");
-                
-                // Opcional: Mostrar nuevos saldos si deseas buscar las cuentas y mostrarlos
-                this.dispose(); // Cerrar ventana
-            } else {
-                // Si devuelve null, es porque falló alguna validación interna (fondos insuficientes, cuenta destino no existe, etc.)
-                JOptionPane.showMessageDialog(this, "Error en la transferencia.\nVerifique que la cuenta destino exista y que el saldo sea suficiente.");
+
+                // Limpiar campos
+                txtOrigen.setText("");
+                txtDestino.setText("");
+                txtMonto.setText("");
+
+            } catch (SQLException e){
+                conn.rollback();
+                JOptionPane.showMessageDialog(this, "Error en la transferencia: " + e.getMessage());
             }
 
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e){
             JOptionPane.showMessageDialog(this, "El monto debe ser un número válido.");
-        } catch (Exception e) {
+        } catch (Exception e){
             JOptionPane.showMessageDialog(this, "Ocurrió un error: " + e.getMessage());
         }
     }//GEN-LAST:event_btnTransferirActionPerformed

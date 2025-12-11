@@ -6,6 +6,9 @@ package vista;
 import modelo.*;
 import javax.swing.JOptionPane;
 import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -142,48 +145,54 @@ public class DepositoFrame extends javax.swing.JFrame {
 
             double monto = Double.parseDouble(montoTxt);
 
-            // 1. Validar que la cuenta exista
-            Cuenta cta = banco.buscarCuenta(codigoCuenta);
-            if (cta == null) {
-                JOptionPane.showMessageDialog(this, "La cuenta no existe.");
-                return;
-            }
+            // Abrir conexión
+            try (Connection conn = Conexion.conectar()) {
+                if (conn == null) {
+                    JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                    return;
+                }
 
-            // 2. Obtener desde SQL el cliente dueño de la cuenta
-            String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(codigoCuenta);
-            if (codigoCliente == null) {
+                // 1. Validar que la cuenta exista
+                Cuenta cta = CuentaDAO.obtenerCuenta(conn, codigoCuenta);
+                if (cta == null) {
+                    JOptionPane.showMessageDialog(this, "La cuenta no existe.");
+                    return;
+                }
+
+                // 2. Obtener desde SQL el cliente dueño de la cuenta
+                String codigoCliente = CuentaDAO.obtenerCodigoClientePorCuenta(conn, codigoCuenta);
+                if (codigoCliente == null) {
+                    JOptionPane.showMessageDialog(this,
+                        "No se pudo obtener el dueño de la cuenta (Base de Datos).",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // 3. Realizar depósito (SQL incluido)
+                boolean ok = banco.depositar(
+                        codigoCliente,  // ← se obtuvo automáticamente
+                        codigoCuenta,
+                        monto,
+                        null,           // empleado
+                        "IGNORAR"       // el ID lo genera la BD
+                );
+
+                if (!ok) {
+                    JOptionPane.showMessageDialog(this, "No se pudo realizar el depósito.");
+                    return;
+                }
+
+                // 4. Obtener saldo actualizado
+                double saldoActualizado = CuentaDAO.obtenerSaldo(conn, codigoCuenta);
+
                 JOptionPane.showMessageDialog(this,
-                    "No se pudo obtener el dueño de la cuenta (Base de Datos).",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+                        "Depósito realizado con éxito.\n" +
+                        "Monto: S/. " + String.format("%.2f", monto) + "\n" +
+                        "Nuevo saldo: S/. " + String.format("%.2f", saldoActualizado),
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                txtMonto.setText("");
             }
-
-            // 3. Obtener al empleado que hace el depósito
-
-
-            // 4. Realizar depósito (SQL incluido)
-            boolean ok = banco.depositar(
-                    codigoCliente,  // ← se obtuvo automáticamente
-                    codigoCuenta,
-                    monto,
-                    null,
-                    "IGNORAR"       // el ID lo genera la BD
-            );
-
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "No se pudo realizar el depósito.");
-                return;
-            }
-
-            // 5. Obtener saldo actualizado
-
-            JOptionPane.showMessageDialog(this,
-                    "Depósito realizado con éxito.\n" +
-                    "Monto: S/. " + String.format("%.2f", monto) + "\n" +
-                    "Nuevo saldo: S/. " + String.format("%.2f", CuentaDAO.obtenerSaldo(codigoCuenta)),
-                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-            txtMonto.setText("");
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Monto inválido.");

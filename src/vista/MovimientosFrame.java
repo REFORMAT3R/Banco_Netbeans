@@ -7,6 +7,10 @@ import modelo.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import java.util.*;
+import BaseDatos.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Admin
@@ -137,22 +141,32 @@ public class MovimientosFrame extends javax.swing.JFrame {
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         // TODO add your handling code here:
         String codigoCuenta = txtCuenta.getText().trim();
-        
+
         // 1. Validar que haya escrito algo
         if (codigoCuenta.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor ingrese un número de cuenta.");
             return;
         }
 
-        // 2. Buscar la cuenta en el Banco
-        Cuenta cuentaEncontrada = banco.buscarCuenta(codigoCuenta);
+        // 2. Abrir conexión a la BD
+        try (Connection conn = Conexion.conectar()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos.");
+                return;
+            }
 
-        if (cuentaEncontrada != null) {
-            cargarTabla(cuentaEncontrada); // Llamamos a un método auxiliar para ordenar el código
-        } else {
-            JOptionPane.showMessageDialog(this, "La cuenta " + codigoCuenta + " no existe.");
-            limpiarTabla();
-        }              
+            // 3. Buscar la cuenta usando la conexión
+            Cuenta cuentaEncontrada = CuentaDAO.obtenerCuenta(conn, codigoCuenta);
+
+            if (cuentaEncontrada != null) {
+                cargarTabla(cuentaEncontrada); // Llamamos a un método auxiliar para ordenar el código
+            } else {
+                JOptionPane.showMessageDialog(this, "La cuenta " + codigoCuenta + " no existe.");
+                limpiarTabla();
+            }  
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar la cuenta: " + e.getMessage());
+        }           
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
