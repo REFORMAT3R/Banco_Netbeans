@@ -6,6 +6,7 @@ package vista;
 import modelo.*; 
 import BaseDatos.*;
 import java.util.*;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -19,13 +20,10 @@ public class ListaClientesFrame extends javax.swing.JFrame {
      * Creates new form LoginFrame
      */
     // En el constructor recibe las instancias
-    private Banco banco;
-    private GestorUsuarios gestor;
+   
 
-    public ListaClientesFrame(Banco banco, GestorUsuarios gestor) {
+    public ListaClientesFrame() {
         initComponents();
-        this.banco = banco;
-        this.gestor = gestor;
         this.setTitle("Lista de Clientes");
     }
     
@@ -39,45 +37,16 @@ public class ListaClientesFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        btnMostrar = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jTable1.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
-        jTable1.setForeground(new java.awt.Color(0, 0, 0));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String [] {
-                "Codigo cliente", "Cuenta principal"
-            }
-        ));
-        jTable1.setShowGrid(false);
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setHeaderValue("Codigo cliente");
-            jTable1.getColumnModel().getColumn(1).setHeaderValue("Cuenta principal");
-        }
-
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(29, 40, 340, 225));
-
-        jButton1.setBackground(new java.awt.Color(239, 184, 16));
-        jButton1.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
-        jButton1.setText("Mostrar");
-        jButton1.setBorderPainted(false);
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 270, -1, -1));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -85,29 +54,73 @@ public class ListaClientesFrame extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Lista de clientes");
 
+        btnMostrar.setBackground(new java.awt.Color(239, 184, 16));
+        btnMostrar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnMostrar.setForeground(new java.awt.Color(0, 0, 0));
+        btnMostrar.setText("Mostrar");
+        btnMostrar.setBorderPainted(false);
+        btnMostrar.addActionListener(this::btnMostrarActionPerformed);
+
+        btnEliminar.setBackground(new java.awt.Color(239, 184, 16));
+        btnEliminar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnEliminar.setForeground(new java.awt.Color(0, 0, 0));
+        btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
+
+        jTable1.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Nombre", "Apellido", "Código", "Edad", "DNI", "Teléfono", "Correo", "Dirección", "Cuenta principal"
+            }
+        ));
+        jTable1.setShowGrid(false);
+        jScrollPane1.setViewportView(jTable1);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(207, 207, 207)
+                .addComponent(btnMostrar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnEliminar)
+                .addGap(210, 210, 210))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(15, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 878, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(130, 130, 130)
+                .addGap(382, 382, 382)
                 .addComponent(jLabel1)
-                .addContainerGap(134, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(274, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEliminar)
+                    .addComponent(btnMostrar))
+                .addContainerGap())
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 310));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 310));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarActionPerformed
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
         modelo.setRowCount(0);
 
@@ -125,11 +138,55 @@ public class ListaClientesFrame extends javax.swing.JFrame {
 
             // 3. Agregar a la tabla
             modelo.addRow(new Object[]{
+                cliente.getNombre(),
+                cliente.getApellido(),
                 cliente.getCodigoCliente(),
+                cliente.getEdad(),
+                cliente.getDni(),
+                cliente.getTelefono(),
+                cliente.getCorreo(),
+                cliente.getDireccion(),
                 primeraCuenta
             });
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnMostrarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        int filaSeleccionada = jTable1.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un cliente para eliminar.");
+            return;
+        }
+
+        String codigoCliente = jTable1.getValueAt(filaSeleccionada, 2).toString();
+        
+        // 2. Confirmación
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this, 
+            "¿Seguro que desea eliminar al cliente " + codigoCliente + "?\n" +
+            "Se borrarán sus CUENTAS y su USUARIO web permanentemente.",
+            "Eliminación Total",
+            javax.swing.JOptionPane.YES_NO_OPTION);
+            
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            
+           // ---Eliminar Usuario Web
+            
+            // Al borrar el cliente, la Base de Datos borra el usuario (ON DELETE CASCADE)
+            //UsuarioDAO.eliminarUsuarioPorCodigo(codigoEmpleado);
+            
+            // ---Eliminar Cliente y Cuentas (Banco) ---
+            boolean eliminado = ClienteDAO.eliminarCliente(codigoCliente);
+            
+            if (eliminado) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Cliente, cuentas y usuario eliminados.");
+                
+                // Actualizar la tabla visualmente
+                btnMostrarActionPerformed(evt); 
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al eliminar cliente.");
+            }
+        }
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -137,7 +194,8 @@ public class ListaClientesFrame extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnMostrar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

@@ -78,28 +78,28 @@ public class Validaciones {
     
     // ==================== VALIDACIONES DE CÓDIGOS ====================
     
-    // Código Cliente: CLI seguido de 3-6 dígitos (ej: CLI001, CLI123456)
+    // Código Cliente: CLI seguido de 3
     public static boolean validarCodigoCliente(String codigo) {
         if (!validarTexto(codigo)) return false;
-        if (codigo.length() < 6 || codigo.length() > 9) return false;
+        if (codigo.length() != 6) return false;
         if (!codigo.toUpperCase().startsWith("CLI")) return false;
         String numeros = codigo.substring(3);
         return numeros.matches("\\d+");
     }
     
-    // Código Empleado: EMP seguido de 3-6 dígitos (ej: EMP001, EMP123456)
+    // Código Empleado: EMP seguido de 3
     public static boolean validarCodigoEmpleado(String codigo) {
         if (!validarTexto(codigo)) return false;
-        if (codigo.length() < 6 || codigo.length() > 9) return false;
+        if (codigo.length() != 6) return false;
         if (!codigo.toUpperCase().startsWith("EMP")) return false;
         String numeros = codigo.substring(3);
         return numeros.matches("\\d+");
     }
     
-    // Código Cuenta: CTA seguido de 8-10 dígitos (ej: CTA00012345, CTA0001234567)
+    // Código Cuenta: CTA seguido de 8
     public static boolean validarCodigoCuenta(String codigo) {
         if (!validarTexto(codigo)) return false;
-        if (codigo.length() < 11 || codigo.length() > 13) return false;
+        if (codigo.length() != 11) return false;
         if (!codigo.toUpperCase().startsWith("CTA")) return false;
         String numeros = codigo.substring(3);
         return numeros.matches("\\d+");
@@ -165,11 +165,11 @@ public class Validaciones {
         if (c.contains("contrasena") || c.contains("contraseña") || c.equals("password")) 
             return "Debe tener al menos 6 caracteres";
         if (c.equals("codigo_cliente")) 
-            return "Formato: CLI001 (CLI + 3 a 6 dígitos)";
+            return "Formato: CLI001 (CLI + 3)";
         if (c.equals("codigo_empleado")) 
-            return "Formato: EMP001 (EMP + 3 a 6 dígitos)";
+            return "Formato: EMP001 (EMP + 3)";
         if (c.equals("codigo_cuenta")) 
-            return "Formato: CTA00012345 (CTA + 8 a 10 dígitos)";
+            return "Formato: CTA00012345 (CTA + 8)";
         if (c.equals("id_transaccion")) 
             return "Formato: TXN12345 (TXN + números)";
         if (c.equals("cuentas_iguales")) 

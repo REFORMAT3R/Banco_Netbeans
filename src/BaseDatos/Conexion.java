@@ -4,7 +4,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 //DB
 public class Conexion {
-    private static final String URL = "jdbc:mysql://localhost:3306/banco?serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/banco1?serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASS = "";
 

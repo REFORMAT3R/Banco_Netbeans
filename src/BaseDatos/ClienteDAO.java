@@ -148,18 +148,75 @@ public class ClienteDAO {
 
     // 4️⃣ Eliminar / DELETE
     public static boolean eliminarCliente(String codigoCliente) {
-        String sql = "DELETE FROM cliente WHERE codigoCliente = ?";
+        Connection conn = null;
 
-        try (Connection conn = Conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try {
+            conn = Conexion.conectar();
+            conn.setAutoCommit(false); // ⚠️ IMPORTANTE: Inicio de Transacción
 
-            ps.setString(1, codigoCliente);
-            ps.executeUpdate();
-            return true;
+            // --- PASO 1: Usar CuentaDAO para borrar las cuentas ---
+            // Le pasamos nuestra conexión activa 'conn'
+            CuentaDAO.eliminarCuentasPorCliente(conn, codigoCliente);
+
+            // --- PASO 2: Borrar al cliente (Responsabilidad propia) ---
+            String sqlCliente = "DELETE FROM cliente WHERE codigoCliente = ?";
+            try (PreparedStatement ps = conn.prepareStatement(sqlCliente)) {
+                ps.setString(1, codigoCliente);
+                int filasAfectadas = ps.executeUpdate();
+
+                if (filasAfectadas > 0) {
+                    conn.commit(); // ✅ Todo salió bien: CONFIRMAR CAMBIOS
+                    return true;
+                } else {
+                    conn.rollback(); // ❌ No se borró el cliente: DESHACER TODO
+                    return false;
+                }
+            }
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar cliente: " + e.getMessage());
+            System.out.println("Error transacción eliminar cliente: " + e.getMessage());
+            // En caso de CUALQUIER error, deshacemos lo de las cuentas y lo del cliente
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             return false;
+        } finally {
+            // Cerramos la conexión al final de todo
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                System.out.println("Error cerrando conexión: " + ex.getMessage());
+            }
         }
+    }
+    
+    // Validar DNI
+    public static boolean existeDNI(String dni) {
+        String sql = "SELECT codigoCliente FROM cliente WHERE dni = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dni);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
+    }
+
+    // Validar Correo
+    public static boolean existeCorreo(String correo) {
+        String sql = "SELECT codigoCliente FROM cliente WHERE correo = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
+    }
+
+    // Validar Teléfono
+    public static boolean existeTelefono(String telefono) {
+        String sql = "SELECT codigoCliente FROM cliente WHERE telefono = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, telefono);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
     }
 }

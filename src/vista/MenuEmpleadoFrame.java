@@ -232,7 +232,7 @@ public class MenuEmpleadoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSaldoActionPerformed
 
     private void btnListaClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListaClientesActionPerformed
-        ListaClientesFrame clientes = new ListaClientesFrame(banco, gestor);
+        ListaClientesFrame clientes = new ListaClientesFrame();
         clientes.setVisible(true);
     }//GEN-LAST:event_btnListaClientesActionPerformed
 

@@ -6,12 +6,14 @@ package vista;
 import modelo.*;
 import BaseDatos.*;
 import java.util.*;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author Admin
  */
 public class ListaEmpleadosFrame extends javax.swing.JFrame {
+    private Usuario usuarioLogueado;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListaEmpleadosFrame.class.getName());
 
@@ -19,13 +21,9 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
      * Creates new form LoginFrame
      */
     // En el constructor recibe las instancias
-    private Banco banco;
-    private GestorUsuarios gestor;
-
-    public ListaEmpleadosFrame(Banco banco, GestorUsuarios gestor) {
+    public ListaEmpleadosFrame(Usuario usuarioLogueado) {
         initComponents();
-        this.banco = banco;
-        this.gestor = gestor;
+        this.usuarioLogueado = usuarioLogueado;
         this.setTitle("Lista de Empleados");
     }
     
@@ -39,39 +37,16 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        btnEliminar = new javax.swing.JButton();
+        btnMostrar = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jTable1.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String [] {
-                "Apellidos", "Código empleado"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(31, 40, 336, 225));
-
-        jButton1.setBackground(new java.awt.Color(239, 184, 16));
-        jButton1.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
-        jButton1.setText("Mostrar");
-        jButton1.setBorderPainted(false);
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(159, 271, -1, -1));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -79,14 +54,46 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Lista de empleados");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 15, -1, 20));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 10, -1, 20));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 310));
+        btnEliminar.setBackground(new java.awt.Color(239, 184, 16));
+        btnEliminar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnEliminar.setForeground(new java.awt.Color(0, 0, 0));
+        btnEliminar.setText("Eliminar");
+        btnEliminar.setBorderPainted(false);
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
+        jPanel1.add(btnEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 270, -1, -1));
+
+        btnMostrar.setBackground(new java.awt.Color(239, 184, 16));
+        btnMostrar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        btnMostrar.setForeground(new java.awt.Color(0, 0, 0));
+        btnMostrar.setText("Mostrar");
+        btnMostrar.setBorderPainted(false);
+        btnMostrar.addActionListener(this::btnMostrarActionPerformed);
+        jPanel1.add(btnMostrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 270, -1, -1));
+
+        jTable1.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Nombre", "Apellidos", "Código", "Edad", "DNI", "Teléfono", "Correo", "Dirección"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 680, 225));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 300));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarActionPerformed
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
         modelo.setRowCount(0);
 
@@ -97,11 +104,72 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
         for (Empleado e : empleados) {
 
             modelo.addRow(new Object[]{
+                e.getNombre(),
                 e.getApellido(),
-                e.getCodigoEmpleado()
+                e.getCodigoEmpleado(),
+                e.getEdad(),
+                e.getDni(),
+                e.getTelefono(),
+                e.getCorreo(),
+                e.getDireccion(),
             });
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnMostrarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        // TODO add your handling code here:
+        int filaSeleccionada = jTable1.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un usuario para eliminar.");
+            return;
+        }
+
+        String codigoObjetivo = jTable1.getValueAt(filaSeleccionada, 2).toString();
+
+        // VALIDACIÓN 1: NO ELIMINARSE A SÍ MISMO
+        String miCodigo = null;
+        if (usuarioLogueado instanceof UsuarioAdministrador) {
+            miCodigo = ((UsuarioAdministrador) usuarioLogueado).getAdministrador().getCodigoEmpleado();
+        } else if (usuarioLogueado instanceof UsuarioEmpleado) {
+            miCodigo = ((UsuarioEmpleado) usuarioLogueado).getEmpleado().getCodigoEmpleado();
+        }
+
+        if (miCodigo != null && miCodigo.equals(codigoObjetivo)) {
+            JOptionPane.showMessageDialog(this, 
+                "¡No puedes eliminar tu propia cuenta!", 
+                "Acción Denegada", JOptionPane.WARNING_MESSAGE);
+            return; 
+        }
+
+        // VALIDACIÓN 2: SOLO LOS ADMINS GESTIONAN PERSONAL
+        // Si el usuario logueado es un Empleado normal, le prohibimos borrar a CUALQUIERA de esta lista.
+        
+        if (usuarioLogueado instanceof UsuarioEmpleado) {
+            JOptionPane.showMessageDialog(this, 
+                "Acceso Denegado:\n" +
+                "Solo los Administradores tienen permiso para eliminar personal.", 
+                "Permisos Insuficientes", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // FLUJO DE ELIMINACIÓN (Solo llegan aquí los Administradores)
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Seguro que desea eliminar al empleado " + codigoObjetivo + "?\n" +
+            "Se borrará su acceso y datos permanentemente.",
+            "Confirmar Eliminación",
+            JOptionPane.YES_NO_OPTION);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            boolean eliminado = EmpleadoDAO.eliminarEmpleado(codigoObjetivo);
+
+            if (eliminado) {
+               JOptionPane.showMessageDialog(this, "Empleado eliminado correctamente.");
+                btnMostrarActionPerformed(evt);
+            } else {
+               JOptionPane.showMessageDialog(this, "Error al eliminar empleado.");
+            }
+        }
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -109,7 +177,8 @@ public class ListaEmpleadosFrame extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnMostrar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

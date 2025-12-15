@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package vista;
+
+import BaseDatos.*;
 import modelo.*; 
 /**
  *
@@ -189,7 +191,7 @@ public class LoginFrame extends javax.swing.JFrame {
         String pass = new String(txtPass.getPassword());
 
         // Validamos usuario
-        Usuario userLogueado = gestor.login(usuario, pass);
+        Usuario userLogueado = UsuarioDAO.login(usuario, pass);
 
         if (userLogueado != null) {
             if (userLogueado instanceof UsuarioCliente) {

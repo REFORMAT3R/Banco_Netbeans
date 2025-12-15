@@ -71,69 +71,34 @@ public class ConsultaSaldoClienteFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnConsultar.setBackground(new java.awt.Color(239, 184, 16));
         btnConsultar.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
-        btnConsultar.setForeground(new java.awt.Color(0, 0, 0));
         btnConsultar.setText("Consultar");
         btnConsultar.setBorderPainted(false);
         btnConsultar.addActionListener(this::btnConsultarActionPerformed);
+        jPanel1.add(btnConsultar, new org.netbeans.lib.awtextra.AbsoluteConstraints(111, 219, -1, -1));
 
         lblTxtSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
         lblTxtSaldo.setForeground(new java.awt.Color(255, 255, 255));
         lblTxtSaldo.setText("Saldo:");
+        jPanel1.add(lblTxtSaldo, new org.netbeans.lib.awtextra.AbsoluteConstraints(84, 289, -1, 21));
 
         comboBoxCuentas.setBackground(new java.awt.Color(204, 204, 204));
         comboBoxCuentas.setFont(new java.awt.Font("Microsoft JhengHei UI", 0, 12)); // NOI18N
-        comboBoxCuentas.setForeground(new java.awt.Color(0, 0, 0));
         comboBoxCuentas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         comboBoxCuentas.addActionListener(this::comboBoxCuentasActionPerformed);
+        jPanel1.add(comboBoxCuentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(93, 150, 132, -1));
 
         lblTxtCuentas.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
         lblTxtCuentas.setForeground(new java.awt.Color(255, 255, 255));
         lblTxtCuentas.setText("Tus Cuentas:");
+        jPanel1.add(lblTxtCuentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(48, 123, -1, -1));
 
         lblNumSaldo.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
         lblNumSaldo.setForeground(new java.awt.Color(255, 255, 255));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(84, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblTxtSaldo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblNumSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnConsultar)
-                        .addGap(97, 97, 97))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(comboBoxCuentas, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(85, 85, 85))))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(48, 48, 48)
-                .addComponent(lblTxtCuentas)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(115, Short.MAX_VALUE)
-                .addComponent(lblTxtCuentas)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(comboBoxCuentas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46)
-                .addComponent(btnConsultar)
-                .addGap(46, 46, 46)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblTxtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblNumSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(110, 110, 110))
-        );
+        jPanel1.add(lblNumSaldo, new org.netbeans.lib.awtextra.AbsoluteConstraints(138, 287, 132, 23));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, 420));
 

@@ -15,35 +15,41 @@ public class Banco {
 
     /* === MÉTODOS DE REGISTRO === */
 
-    public void registrarCliente(Cliente cliente) {
+    public boolean registrarCliente(Cliente cliente) {
         if (!Validaciones.validarObjeto(cliente)) {
-            System.out.println("Error: El cliente no puede ser nulo.");
-            return;
+            return false;
         }
+
         
-        // Verificar si ya existe en la BD
-        if (ClienteDAO.obtenerCliente(cliente.getCodigoCliente()) != null) {
-            System.out.println("Error: Ya existe un cliente con el codigo " + cliente.getCodigoCliente());
-            return;
+        // 1. DNI
+        if (ClienteDAO.existeDNI(cliente.getDni()) || EmpleadoDAO.existeDNI(cliente.getDni())) {
+            System.out.println("Error: DNI duplicado.");
+            return false; // Retorna falso para avisar a la ventana
         }
-        
-        // Insertar en la base de datos
+
+        // 2. Correo
+        if (ClienteDAO.existeCorreo(cliente.getCorreo()) || EmpleadoDAO.existeCorreo(cliente.getCorreo())) {
+            System.out.println("Error: Correo duplicado.");
+            return false;
+        }
+
+        // 3. Teléfono
+        if (ClienteDAO.existeTelefono(cliente.getTelefono()) || EmpleadoDAO.existeTelefono(cliente.getTelefono())) {
+            System.out.println("Error: Teléfono duplicado.");
+            return false;
+        }
+
+        // Si pasa todo, intentamos insertar
         boolean exito = ClienteDAO.insertarCliente(
-            cliente.getNombre(),
-            cliente.getApellido(),
-            cliente.getTelefono(),
-            cliente.getCorreo(),
-            cliente.getEdad(),
-            cliente.getDni(),
-            cliente.getDireccion(),
-            cliente.getCodigoCliente()
+            cliente.getNombre(), cliente.getApellido(), cliente.getTelefono(),
+            cliente.getCorreo(), cliente.getEdad(), cliente.getDni(),
+            cliente.getDireccion(), cliente.getCodigoCliente()
         );
         
-        if (exito) {
-            System.out.println("Cliente registrado correctamente: " + cliente.getApellido() + " " + cliente.getNombre());
-        }
+        return exito; // Devolvemos el resultado del DAO
     }
-
+    
+    
     public void registrarCuenta(Connection conn, Cuenta cuenta) {
         if (!Validaciones.validarObjeto(cuenta)) {
             System.out.println("Error: La cuenta no puede ser nula.");
@@ -60,19 +66,32 @@ public class Banco {
     }
 
 
-    public void registrarEmpleado(Empleado empleado) {
+    public boolean registrarEmpleado(Empleado empleado) {
         if (!Validaciones.validarObjeto(empleado)) {
-            System.out.println("Error: El empleado no puede ser nulo.");
-            return;
+            return false;
         }
         
-        // Verificar si ya existe en la BD
-        if (EmpleadoDAO.obtenerEmpleado(empleado.getCodigoEmpleado()) != null) {
-            System.out.println("Error: Ya existe un empleado con el codigo " + empleado.getCodigoEmpleado());
-            return;
+        // --- VALIDACIONES CRUZADAS (Busca en ambas tablas) ---
+        
+        // 1. DNI
+        if (EmpleadoDAO.existeDNI(empleado.getDni()) || ClienteDAO.existeDNI(empleado.getDni())) {
+            System.out.println("Error: El DNI ya está registrado en el sistema.");
+            return false;
         }
         
-        // Insertar en la base de datos
+        // 2. Correo
+        if (EmpleadoDAO.existeCorreo(empleado.getCorreo()) || ClienteDAO.existeCorreo(empleado.getCorreo())) {
+            System.out.println("Error: El correo ya está en uso.");
+            return false;
+        }
+        
+        // 3. Teléfono
+        if (EmpleadoDAO.existeTelefono(empleado.getTelefono()) || ClienteDAO.existeTelefono(empleado.getTelefono())) {
+            System.out.println("Error: El teléfono ya está registrado.");
+            return false;
+        }
+        
+        // --- INSERTAR EN BD ---
         boolean exito = EmpleadoDAO.insertarEmpleado(
             empleado.getNombre(),
             empleado.getApellido(),
@@ -84,8 +103,26 @@ public class Banco {
             empleado.getCodigoEmpleado()
         );
         
+        return exito;
+    }
+    
+    public void registrarUsuario(Usuario usuario) {
+        if (usuario == null) {
+            System.out.println("Error: El usuario no puede ser nulo.");
+            return;
+        }
+
+        if (UsuarioDAO.existeUsuario(usuario.getNombreUsuario())) {
+            System.out.println("Error: El usuario '" + usuario.getNombreUsuario() + "' ya existe.");
+            return;
+        }
+
+        boolean exito = UsuarioDAO.insertarUsuario(usuario);
+        
         if (exito) {
-            System.out.println("Empleado registrado correctamente: " + empleado.getApellido() + " " + empleado.getNombre());
+            System.out.println("Usuario web registrado: " + usuario.getNombreUsuario());
+        } else {
+            System.out.println("Error al registrar usuario en la base de datos.");
         }
     }
 
@@ -93,7 +130,7 @@ public class Banco {
         // Ya no es necesario, la relación se maneja en la tabla cuenta
         System.out.println("Relación cliente-cuenta ya establecida en la base de datos.");
     }
-
+    
     /* === MÉTODOS DE BÚSQUEDA === */
 
     public Empleado buscarEmpleado(String codigoEmpleado) {
@@ -128,13 +165,13 @@ public class Banco {
     }
 
 
-    public Cuenta buscarCuenta(Connection conn, String codigoCuenta) {
+    public Cuenta buscarCuenta(String codigoCuenta) {
         if (!Validaciones.validarTexto(codigoCuenta)) {
             return null;
         }
 
         // El DAO devuelve directamente una Cuenta usando la conexión proporcionada
-        return CuentaDAO.obtenerCuenta(conn, codigoCuenta);
+        return CuentaDAO.obtenerCuenta(codigoCuenta);
     }
 
     /* === CREACIÓN DE CUENTA === */
@@ -196,10 +233,6 @@ public class Banco {
 
     }
 
-
-
-
-
     public boolean retirar(Connection conn, String codigoCliente, String codigoCuenta, double monto,
                            Empleado empleado, String ID) {
 
@@ -235,7 +268,7 @@ public class Banco {
 
             // 5. Registrar transacción en SQL
             String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
-            TransaccionDAO.insertarTransaccion(conn, null, codigoCuenta, codigoEmp, monto, "retiro");
+            TransaccionDAO.insertarTransaccion(conn, codigoCuenta, null, codigoEmp, monto, "retiro");
 
             return true;
 
@@ -249,44 +282,73 @@ public class Banco {
 
 
     public boolean transferir(Connection conn, String codigoClienteOrigen, String codigoCuentaOrigen,
-                               String codigoCuentaDestino, double monto, Empleado empleado) {
-        try {
-            // 1. Verificar que la cuenta origen pertenece al cliente
-            String dueño = CuentaDAO.obtenerCodigoClientePorCuenta(conn, codigoCuentaOrigen);
-            if (dueño == null || !dueño.equals(codigoClienteOrigen)) {
-                System.out.println("La cuenta origen no pertenece al cliente.");
+                                   String codigoCuentaDestino, double monto, Empleado empleado) {
+            boolean estadoAutocommit = true; 
+            try {
+                estadoAutocommit = conn.getAutoCommit();
+                conn.setAutoCommit(false); // <--- IMPORTANTE: Iniciamos transacción manual
+
+                if (codigoCuentaOrigen.equals(codigoCuentaDestino)) {
+                    System.out.println("Error: No puede transferir a la misma cuenta.");
+                    return false;
+                }
+
+                // B. Verificar que la cuenta origen sea del cliente
+                String dueño = CuentaDAO.obtenerCodigoClientePorCuenta(conn, codigoCuentaOrigen);
+                if (dueño == null || !dueño.equals(codigoClienteOrigen)) {
+                    System.out.println("Error: La cuenta origen no pertenece al cliente.");
+                    return false;
+                }
+
+                // C. Obtener saldos y verificar existencia
+                Double saldoOrigen = CuentaDAO.obtenerSaldo(conn, codigoCuentaOrigen);
+                Double saldoDestino = CuentaDAO.obtenerSaldo(conn, codigoCuentaDestino);
+
+                if (saldoOrigen == null) {
+                    System.out.println("Error: La cuenta de origen no existe.");
+                    return false;
+                }
+                if (saldoDestino == null) {
+                    System.out.println("Error: La cuenta de destino no existe.");
+                    return false;
+                }
+
+                // D. Verificar fondos suficientes
+                if (saldoOrigen < monto) {
+                    System.out.println("Error: Saldo insuficiente para realizar la transferencia.");
+                    return false;
+                }
+
+                // Restar al origen
+                if (!CuentaDAO.actualizarSaldo(conn, codigoCuentaOrigen, saldoOrigen - monto)) {
+                    conn.rollback(); 
+                    return false;
+                }
+
+                // Sumar al destino
+                if (!CuentaDAO.actualizarSaldo(conn, codigoCuentaDestino, saldoDestino + monto)) {
+                    conn.rollback(); 
+                    return false;
+                }
+
+                // Guardar Historial
+                String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
+                if (!TransaccionDAO.insertarTransaccion(conn, codigoCuentaOrigen, codigoCuentaDestino, codigoEmp, monto, "transferencia")) {
+                    conn.rollback(); // Si falla el historial, deshacemos todo el dinero movido
+                    return false;
+                }
+
+                conn.commit(); // Confirmamos los cambios
+                return true;
+
+            } catch (Exception e) {
+                try { conn.rollback(); } catch (SQLException ex) { } // Deshacer en caso de error inesperado
+                System.out.println("Error crítico en transferencia: " + e.getMessage());
                 return false;
+            } finally {
+                try { conn.setAutoCommit(estadoAutocommit); } catch (SQLException ex) { }
+                
             }
-
-            // 2. Verificar que la cuenta destino exista
-            Double saldoDestino = CuentaDAO.obtenerSaldo(conn, codigoCuentaDestino);
-            if (saldoDestino == null) {
-                System.out.println("La cuenta destino no existe.");
-                return false;
-            }
-
-            // 3. Verificar saldo suficiente en origen
-            Double saldoOrigen = CuentaDAO.obtenerSaldo(conn, codigoCuentaOrigen);
-            if (saldoOrigen == null || saldoOrigen < monto) {
-                System.out.println("Saldo insuficiente en la cuenta origen.");
-                return false;
-            }
-
-            // 4. Actualizar saldos en SQL
-            if (!CuentaDAO.actualizarSaldo(conn, codigoCuentaOrigen, saldoOrigen - monto)) return false;
-            if (!CuentaDAO.actualizarSaldo(conn, codigoCuentaDestino, saldoDestino + monto)) return false;
-
-            // 5. Registrar transacción en SQL
-            String codigoEmp = (empleado != null) ? empleado.getCodigoEmpleado() : null;
-            if (!TransaccionDAO.insertarTransaccion(conn, codigoCuentaOrigen, codigoCuentaDestino, codigoEmp, monto, "transferencia"))
-                return false;
-
-            return true;
-
-        } catch (Exception e) {
-            System.out.println("Error en transferencia: " + e.getMessage());
-            return false;
-        }
     }
 
 
@@ -396,6 +458,10 @@ public class Banco {
     }
     public List<Cuenta> getListaCuentas() {
         return CuentaDAO.listarCuentas();
+    }
+    
+    public List<Usuario> getListaUsuarios() {
+        return UsuarioDAO.listarUsuarios();
     }
     
     public ArrayList<Titular> getListaTitular() {

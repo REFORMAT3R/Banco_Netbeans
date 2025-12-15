@@ -63,50 +63,68 @@ public class CuentaDAO {
         }
         return null;
     }
+    
+    public static Cuenta obtenerCuenta(String codigoCuenta) {
+        String sql = "SELECT codigoCuenta FROM cuenta WHERE codigoCuenta = ?";
+        
+        // Aquí se crea la conexión automáticamente dentro del try
+        try (Connection conn = Conexion.conectar(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setString(1, codigoCuenta);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Cuenta(rs.getString("codigoCuenta"));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error obtenerCuenta (sin conexión): " + e.getMessage());
+        }
+        return null;
+    }
 
     
-        public static List<Cuenta> buscarCuentasCliente(String codigoCliente) {
-            List<Cuenta> cuentas = new ArrayList<>();
+    public static List<Cuenta> buscarCuentasCliente(String codigoCliente) {
+        List<Cuenta> cuentas = new ArrayList<>();
+        String sql = "SELECT codigoCuenta FROM cuenta WHERE codigoCliente = ?";
 
-            String sql = "SELECT codigoCuenta FROM cuenta WHERE codigoCliente = ?";
+        try (Connection conn = Conexion.conectar();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            try (Connection conn = Conexion.conectar();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoCliente);
+            ResultSet rs = ps.executeQuery();
 
-                ps.setString(1, codigoCliente);
-                ResultSet rs = ps.executeQuery();
-
-                while (rs.next()) {
-                    // Creas la cuenta usando solo el código
-                    Cuenta c = new Cuenta(rs.getString("codigoCuenta"));
-                    cuentas.add(c);
-                }
-
-            } catch (SQLException e) {
-                System.out.println("Error al obtener cuentas del cliente: " + e.getMessage());
+            while (rs.next()) {
+               // Creas la cuenta usando solo el código
+                Cuenta c = new Cuenta(rs.getString("codigoCuenta"));
+                cuentas.add(c);
             }
 
-            return cuentas;
+        } catch (SQLException e) {
+            System.out.println("Error al obtener cuentas del cliente: " + e.getMessage());
         }
 
-        public static String obtenerCodigoClientePorCuenta(Connection conn, String codigoCuenta) {
-            String sql = "SELECT codigoCliente FROM cuenta WHERE codigoCuenta = ?";
+        return cuentas;
+    }
 
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, codigoCuenta);
+    public static String obtenerCodigoClientePorCuenta(Connection conn, String codigoCuenta) {
+        String sql = "SELECT codigoCliente FROM cuenta WHERE codigoCuenta = ?";
 
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getString("codigoCliente");
-                    }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoCuenta);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                return rs.getString("codigoCliente");
                 }
+         }
 
-            } catch (SQLException e) {
-                System.out.println("Error al obtener cliente de la cuenta: " + e.getMessage());
-            }
-
-            return null;
+        } catch (SQLException e) {
+            System.out.println("Error al obtener cliente de la cuenta: " + e.getMessage());
         }
+
+        return null;
+    }
 
     public static Double obtenerSaldo(Connection conn, String codigoCuenta) {
         String sql = "SELECT saldo FROM cuenta WHERE codigoCuenta = ?";
@@ -186,6 +204,15 @@ public class CuentaDAO {
         } catch (SQLException e) {
             System.out.println("Error al eliminar cuenta: " + e.getMessage());
             return false;
+        }
+    }
+    
+    public static void eliminarCuentasPorCliente(Connection conn, String codigoCliente) throws SQLException {
+        String sql = "DELETE FROM cuenta WHERE codigoCliente = ?";
+        
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoCliente);
+            ps.executeUpdate();
         }
     }
 }

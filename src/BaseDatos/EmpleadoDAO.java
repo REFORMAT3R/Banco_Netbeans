@@ -167,4 +167,34 @@ public class EmpleadoDAO {
             return false;
         }
     }
+    
+    // Validar DNI
+    public static boolean existeDNI(String dni) {
+        String sql = "SELECT codigoEmpleado FROM empleado WHERE dni = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dni);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
+    }
+
+    // Validar Correo
+    public static boolean existeCorreo(String correo) {
+        String sql = "SELECT codigoEmpleado FROM empleado WHERE correo = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
+    }
+
+    // Validar Teléfono
+    public static boolean existeTelefono(String telefono) {
+        String sql = "SELECT codigoEmpleado FROM cliente WHERE telefono = ?";
+        try (java.sql.Connection conn = Conexion.conectar();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, telefono);
+            try (java.sql.ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (java.sql.SQLException e) { return false; }
+    }
 }
